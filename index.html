@@ -1,13 +1,721 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>student-portal</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Registration System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --electric-blue: #0066ff;
+      --deep-blue: #003d99;
+      --dark-bg: #0a0f1a;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --accent-teal: #14b8a6;
+      --accent-purple: #a855f7;
+      --accent-orange: #f97316;
+    }
+
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--dark-bg);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Grid Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 102, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 102, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Glowing border effect */
+    .glow-border {
+      position: relative;
+      border: 2px solid var(--electric-blue);
+      box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+    }
+
+    .glow-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--electric-blue), var(--deep-blue), var(--electric-blue));
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .glow-border:hover::before {
+      opacity: 1;
+      animation: glow-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Table styles */
+    .data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .data-table thead {
+      background: var(--border);
+    }
+
+    .data-table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      border-bottom: 2px solid var(--accent-teal);
+    }
+
+    .data-table td {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .data-table tbody tr {
+      background: var(--card-bg);
+      transition: all 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(0, 102, 255, 0.05);
+      transform: translateX(4px);
+    }
+
+    /* Status indicators */
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-available { background: #10b981; box-shadow: 0 0 10px #10b981; }
+    .status-limited { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+    .status-full { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+
+    /* Action buttons */
+    .btn {
+      padding: 10px 24px;
+      border: 2px solid var(--electric-blue);
+      background: transparent;
+      color: var(--electric-blue);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--electric-blue);
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .btn:hover::before {
+      left: 0;
+    }
+
+    .btn:hover {
+      color: var(--dark-bg);
+    }
+
+    .btn-primary {
+      background: var(--electric-blue);
+      color: var(--dark-bg);
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--electric-blue);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--card-bg);
+      border-right: 2px solid var(--border);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+
+    .sidebar-item {
+      padding: 16px 24px;
+      border-left: 4px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(20, 184, 166, 0.1);
+      border-left-color: var(--accent-teal);
+    }
+
+    .sidebar-item.active {
+      background: rgba(20, 184, 166, 0.15);
+      border-left-color: var(--accent-teal);
+      color: var(--accent-teal);
+    }
+
+    /* Input fields */
+    .input-field {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      padding: 12px 16px;
+      width: 100%;
+      transition: all 0.2s ease;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--electric-blue);
+      box-shadow: 0 0 20px rgba(0, 102, 255, 0.2);
+    }
+
+    /* Info cards */
+    .info-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+      border-color: var(--electric-blue);
+      box-shadow: 0 0 30px rgba(0, 102, 255, 0.15);
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #14b8a6, #a855f7, #f97316);
+      transition: width 0.5s ease;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border: 2px solid var(--dark-bg);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--electric-blue);
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+
+    .badge-success { color: #10b981; border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+    .badge-warning { color: #f59e0b; border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .badge-error { color: #ef4444; border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    .badge-info { color: var(--electric-blue); border-color: var(--electric-blue); background: rgba(0, 102, 255, 0.1); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 2px solid var(--electric-blue);
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 0 50px rgba(0, 102, 255, 0.5);
+    }
+
+    /* Animations */
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .animate-slide-in {
+      animation: slideInRight 0.4s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .delay-4 { animation-delay: 0.4s; opacity: 0; }
+    .delay-5 { animation-delay: 0.5s; opacity: 0; }
+
+    /* Terminal-style header */
+    .terminal-header {
+      background: var(--card-bg);
+      border-bottom: 2px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .terminal-dot.active {
+      background: var(--accent-teal);
+      box-shadow: 0 0 10px var(--accent-teal);
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="app-container">
+    <div class="flex">
+      
+      <!-- Sidebar -->
+      <aside class="sidebar w-64 flex-shrink-0">
+        <div class="p-6 border-b-2 border-gray-800">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 flex items-center justify-center" style="background: linear-gradient(135deg, #14b8a6, #a855f7); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">
+              <span class="mono text-sm font-bold">AH</span>
+            </div>
+            <div>
+              <div class="font-bold text-lg">AH</div>
+              <div class="mono text-xs text-gray-500">v2.4.1</div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="py-4">
+          <div class="sidebar-item active">
+            <span class="text-xl">📚</span>
+            <span class="font-semibold">Browse Courses</span>
+          </div>
+          <div class="sidebar-item">
+            <span class="text-xl">📅</span>
+            <span class="font-semibold">My Schedule</span>
+          </div>
+          <div class="sidebar-item">
+            <span class="text-xl">🎯</span>
+            <span class="font-semibold">Degree Progress</span>
+          </div>
+          <div class="sidebar-item">
+            <span class="text-xl">📊</span>
+            <span class="font-semibold">Analytics</span>
+          </div>
+          <div class="sidebar-item">
+            <span class="text-xl">⚙️</span>
+            <span class="font-semibold">Settings</span>
+          </div>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-6 border-t-2 border-gray-800">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center">
+              <span class="font-bold">JD</span>
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">John Doe</div>
+              <div class="mono text-xs text-gray-500">ID: 2024-0891</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 min-h-screen">
+        
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot active"></div>
+          <span class="mono text-sm text-gray-500 ml-2">/registration/spring-2026</span>
+          <div class="flex-1"></div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-3 gap-0 border-b-2 border-gray-800">
+          <div class="info-card border-r-2 border-b-0">
+            <div class="mono text-xs text-gray-500 mb-1">ENROLLED</div>
+            <div class="text-3xl font-bold text-teal-500">0</div>
+            <div class="mono text-xs text-gray-600 mt-1">/ 18 CREDITS</div>
+            <div class="progress-bar mt-3">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+          <div class="info-card border-r-2 border-b-0">
+            <div class="mono text-xs text-gray-500 mb-1">COURSES</div>
+            <div class="text-3xl font-bold">0</div>
+            <div class="mono text-xs text-gray-600 mt-1">REGISTERED</div>
+          </div>
+          <div class="info-card border-b-0">
+            <div class="mono text-xs text-gray-500 mb-1">DEADLINE</div>
+            <div class="text-3xl font-bold text-amber-500">28</div>
+            <div class="mono text-xs text-gray-600 mt-1">FEB 2026</div>
+          </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="p-6 border-b-2 border-gray-800 bg-gray-900">
+          <div class="flex gap-4 mb-4">
+            <input 
+              type="text" 
+              placeholder="SEARCH COURSES..." 
+              class="input-field flex-1"
+              id="searchInput"
+            />
+            <select class="input-field w-48">
+              <option>ALL DEPARTMENTS</option>
+              <option>COMPUTER SCIENCE</option>
+              <option>MATHEMATICS</option>
+              <option>ENGINEERING</option>
+            </select>
+            <select class="input-field w-48">
+              <option>ALL LEVELS</option>
+              <option>1000-LEVEL</option>
+              <option>2000-LEVEL</option>
+              <option>3000-LEVEL</option>
+              <option>4000-LEVEL</option>
+            </select>
+          </div>
+          
+          <div class="flex gap-3">
+            <button class="badge badge-info cursor-pointer">AVAILABLE ONLY</button>
+            <button class="badge badge-success cursor-pointer">MORNING CLASSES</button>
+            <button class="badge badge-warning cursor-pointer">EVENING CLASSES</button>
+            <button class="badge cursor-pointer" style="color: #8b5cf6; border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1);">4 CREDITS</button>
+          </div>
+        </div>
+
+        <!-- Course Table -->
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-xl font-bold mb-1">AVAILABLE COURSES</h2>
+              <p class="mono text-xs text-gray-500">Showing 247 results • Computer Science Department</p>
+            </div>
+            <div class="flex gap-3">
+              <button class="btn">VIEW GRID</button>
+              <button class="btn btn-primary">TABLE VIEW</button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto animate-slide-in">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>CODE</th>
+                  <th>COURSE NAME</th>
+                  <th>INSTRUCTOR</th>
+                  <th>SCHEDULE</th>
+                  <th>CREDITS</th>
+                  <th>SEATS</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Courses will appear here when added -->
+              </tbody>
+            </table>
+            
+            <!-- Empty State Visual -->
+            <div class="flex flex-col items-center justify-center py-16 text-center">
+              <div class="mb-8 relative">
+                <!-- Floating Icons Animation -->
+                <div class="relative w-64 h-64">
+                  <div class="absolute top-0 left-1/2 transform -translate-x-1/2 animate-pulse">
+                    <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center text-3xl shadow-lg" style="animation: float 3s ease-in-out infinite;">
+                      📚
+                    </div>
+                  </div>
+                  
+                  <div class="absolute top-20 left-8 animate-pulse" style="animation-delay: 0.5s;">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-2xl shadow-lg" style="animation: float 4s ease-in-out infinite; animation-delay: 0.5s;">
+                      🎓
+                    </div>
+                  </div>
+                  
+                  <div class="absolute top-20 right-8 animate-pulse" style="animation-delay: 1s;">
+                    <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center text-2xl shadow-lg" style="animation: float 3.5s ease-in-out infinite; animation-delay: 1s;">
+                      💻
+                    </div>
+                  </div>
+                  
+                  <div class="absolute bottom-8 left-1/4 animate-pulse" style="animation-delay: 1.5s;">
+                    <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-lg flex items-center justify-center text-xl shadow-lg" style="animation: float 4.5s ease-in-out infinite; animation-delay: 1.5s;">
+                      ✏️
+                    </div>
+                  </div>
+                  
+                  <div class="absolute bottom-8 right-1/4 animate-pulse" style="animation-delay: 2s;">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center text-xl shadow-lg" style="animation: float 3.8s ease-in-out infinite; animation-delay: 2s;">
+                      🔬
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <h3 class="text-2xl font-bold mb-3">Start Building Your Schedule</h3>
+              <p class="mono text-sm text-gray-400 mb-6 max-w-md">
+                Search for courses above or browse by department to add classes to your registration
+              </p>
+              
+              <div class="flex gap-4">
+                <button class="btn btn-primary">BROWSE CATALOG</button>
+                <button class="btn">VIEW REQUIREMENTS</button>
+              </div>
+            </div>
+          </div>
+
+          <style>
+            @keyframes float {
+              0%, 100% {
+                transform: translateY(0px);
+              }
+              50% {
+                transform: translateY(-20px);
+              }
+            }
+          </style>
+        </div>
+
+        <!-- Currently Enrolled Section -->
+        <div class="p-6 bg-gray-900 border-t-2 border-gray-800">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">CURRENTLY ENROLLED</h3>
+            <span class="mono text-xs text-gray-500">0 courses • 0 credits</span>
+          </div>
+
+          <div class="border-2 border-dashed border-gray-700 rounded-lg p-16 text-center">
+            <div class="text-6xl mb-4 opacity-20">📚</div>
+            <div class="mono text-sm text-gray-500 mb-2">NO COURSES ENROLLED</div>
+            <div class="text-xs text-gray-600">Browse and add courses to build your schedule</div>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Modal (hidden by default) -->
+  <div id="courseModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+      <div class="p-6 border-b-2 border-blue-600 flex justify-between items-center">
+        <h3 class="text-xl font-bold">COURSE DETAILS</h3>
+        <button onclick="closeModal()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
+      </div>
+      <div class="p-6" id="modalContent">
+        <!-- Content injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      
+      tableRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
+    // Add course function
+    function addCourse(btn) {
+      const row = btn.closest('tr');
+      const courseCode = row.querySelector('td:first-child').textContent;
+      const courseName = row.querySelector('td:nth-child(2) .font-semibold').textContent;
+      
+      btn.textContent = 'ADDED ✓';
+      btn.style.borderColor = '#10b981';
+      btn.style.color = '#10b981';
+      btn.disabled = true;
+      
+      // Show notification
+      showNotification(`${courseCode} - ${courseName} added to schedule`);
+      
+      setTimeout(() => {
+        btn.remove();
+      }, 2000);
+    }
+
+    // Join waitlist function
+    function joinWaitlist(btn) {
+      const row = btn.closest('tr');
+      const courseCode = row.querySelector('td:first-child').textContent;
+      
+      btn.textContent = 'JOINED ✓';
+      btn.style.borderColor = '#10b981';
+      btn.style.color = '#10b981';
+      btn.disabled = true;
+      
+      showNotification(`Added to waitlist for ${courseCode}`);
+    }
+
+    // Drop course function
+    function dropCourse(btn) {
+      if (confirm('Are you sure you want to drop this course?')) {
+        const card = btn.closest('.glow-border');
+        card.style.opacity = '0.3';
+        card.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+          card.remove();
+        }, 300);
+        
+        showNotification('Course dropped successfully');
+      }
+    }
+
+    // Notification system
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 shadow-lg mono text-sm font-bold z-50';
+      notification.style.boxShadow = '0 0 30px rgba(0, 102, 255, 0.5)';
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.transition = 'all 0.3s ease';
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100px)';
+        
+        setTimeout(() => {
+          notification.remove();
+        }, 300);
+      }, 3000);
+    }
+
+    // Modal functions
+    function closeModal() {
+      document.getElementById('courseModal').style.display = 'none';
+    }
+
+    // Sidebar navigation
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Filter badges
+    document.querySelectorAll('.badge').forEach(badge => {
+      badge.addEventListener('click', function() {
+        this.style.opacity = this.style.opacity === '0.5' ? '1' : '0.5';
+      });
+    });
+  </script>
+
+</body>
 </html>
