@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import TopNavbar from './Sidebar'
+import TopNavbar from './TopNav'
 import CourseCard from './CourseCard'
 import CourseDetailView from './CourseDetailView'
 import { getStudentDashboard } from '../services/studentRepository'
