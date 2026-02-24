@@ -1,0 +1,143 @@
+export const MOCK_STUDENT = {
+  id: 'student-1001',
+  fullName: 'Jordan Lee',
+  email: 'jordan.lee@northlake.edu',
+  program: 'B.S. Computer Science',
+  term: 'Spring 2026',
+  gpa: 3.72,
+  courses: [
+    {
+      id: 'course-cs310',
+      className: 'Software Engineering',
+      courseCode: 'CS 310',
+      instructor: 'Prof. Marcus Reid',
+      daysTimes: 'Mon/Wed 9:30 AM - 10:45 AM',
+      location: 'Engineering Hall 302',
+      locationDetails: {
+        building: 'Engineering Hall',
+        room: '302',
+        campus: 'Northlake Main Campus',
+      },
+      credits: 4,
+      waitlistStatus: 'Open',
+      grade: {
+        letter: 'A',
+        percent: 96,
+      },
+      professorInfo: {
+        name: 'Prof. Marcus Reid',
+        email: 'm.reid@northlake.edu',
+        office: 'Engineering Hall 511',
+        officeHours: 'Tue 1:00 PM - 3:00 PM',
+      },
+      capacity: {
+        enrolled: 34,
+        max: 36,
+      },
+      schedule: [
+        { day: 'Mon', startTime: '09:30', endTime: '10:45' },
+        { day: 'Wed', startTime: '09:30', endTime: '10:45' },
+      ],
+    },
+    {
+      id: 'course-cs250',
+      className: 'Database Systems',
+      courseCode: 'CS 250',
+      instructor: 'Prof. Aisha Patel',
+      daysTimes: 'Tue/Thu 11:00 AM - 12:15 PM',
+      location: 'Science Center 210',
+      locationDetails: {
+        building: 'Science Center',
+        room: '210',
+        campus: 'Northlake Main Campus',
+      },
+      credits: 3,
+      waitlistStatus: 'Waitlist 4',
+      grade: {
+        letter: 'A',
+        percent: 95,
+      },
+      professorInfo: {
+        name: 'Prof. Aisha Patel',
+        email: 'a.patel@northlake.edu',
+        office: 'Science Center 417',
+        officeHours: 'Thu 2:00 PM - 4:00 PM',
+      },
+      capacity: {
+        enrolled: 30,
+        max: 30,
+      },
+      schedule: [
+        { day: 'Tue', startTime: '11:00', endTime: '12:15' },
+        { day: 'Thu', startTime: '11:00', endTime: '12:15' },
+      ],
+    },
+    {
+      id: 'course-math240',
+      className: 'Discrete Mathematics',
+      courseCode: 'MATH 240',
+      instructor: 'Dr. Hannah Briggs',
+      daysTimes: 'Mon/Wed/Fri 1:00 PM - 1:50 PM',
+      location: 'Math Building 118',
+      locationDetails: {
+        building: 'Math Building',
+        room: '118',
+        campus: 'Northlake Main Campus',
+      },
+      credits: 3,
+      waitlistStatus: 'Open',
+      grade: {
+        letter: 'B+',
+        percent: 88,
+      },
+      professorInfo: {
+        name: 'Dr. Hannah Briggs',
+        email: 'h.briggs@northlake.edu',
+        office: 'Math Building 404',
+        officeHours: 'Wed 10:00 AM - 12:00 PM',
+      },
+      capacity: {
+        enrolled: 27,
+        max: 32,
+      },
+      schedule: [
+        { day: 'Mon', startTime: '13:00', endTime: '13:50' },
+        { day: 'Wed', startTime: '13:00', endTime: '13:50' },
+        { day: 'Fri', startTime: '13:00', endTime: '13:50' },
+      ],
+    },
+    {
+      id: 'course-eng210',
+      className: 'Technical Writing',
+      courseCode: 'ENG 210',
+      instructor: 'Dr. Grace Kim',
+      daysTimes: 'Tue/Thu 2:00 PM - 3:15 PM',
+      location: 'Liberal Arts 205',
+      locationDetails: {
+        building: 'Liberal Arts',
+        room: '205',
+        campus: 'Northlake Main Campus',
+      },
+      credits: 2,
+      waitlistStatus: 'Waitlist 1',
+      grade: {
+        letter: 'B',
+        percent: 84,
+      },
+      professorInfo: {
+        name: 'Dr. Grace Kim',
+        email: 'g.kim@northlake.edu',
+        office: 'Liberal Arts 312',
+        officeHours: 'Tue 11:00 AM - 12:30 PM',
+      },
+      capacity: {
+        enrolled: 25,
+        max: 25,
+      },
+      schedule: [
+        { day: 'Tue', startTime: '14:00', endTime: '15:15' },
+        { day: 'Thu', startTime: '14:00', endTime: '15:15' },
+      ],
+    },
+  ],
+}
