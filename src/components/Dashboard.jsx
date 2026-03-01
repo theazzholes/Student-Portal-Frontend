@@ -13,15 +13,9 @@ function Dashboard() {
 
   useEffect(() => {
     let isMounted = true
-
     Promise.resolve(getStudentDashboard())
-      .then((data) => {
-        if (isMounted) setStudent(data)
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false)
-      })
-
+      .then((data) => { if (isMounted) setStudent(data) })
+      .finally(() => { if (isMounted) setLoading(false) })
     return () => { isMounted = false }
   }, [])
 
@@ -44,7 +38,6 @@ function Dashboard() {
             {activeTab === 'overview' && (
               <section className="space-y-4">
 
-                {/* Compact Header — single row */}
                 <header className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -52,7 +45,6 @@ function Dashboard() {
                       <h2 className="text-2xl font-bold leading-tight">{student?.fullName}</h2>
                       <p className="text-sm text-slate-500">{student?.program}</p>
                     </div>
-
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center">
                         <p className="text-xs uppercase tracking-wide text-slate-400">Term</p>
@@ -74,48 +66,32 @@ function Dashboard() {
                   </div>
                 </header>
 
-                {/* Main Content: Calendar+List (2/3) | Course Cards (1/3) */}
                 <div className="grid gap-4 lg:grid-cols-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2 space-y-6">
+                    <CourseDetailView course={selectedCourse} />
+                    <div className="border-t border-slate-100" />
 
-                  {/* Left box: Course List + Calendar */}
-                  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
-                    <h3 className="text-base font-semibold text-slate-700 mb-3">Registered Courses</h3>
-                    <ul className="grid grid-cols-2 gap-2 text-sm text-slate-700 mb-6">
-                      {courses.map((course) => (
-                        <li key={course.id} className="rounded-lg bg-slate-50 px-3 py-2">
-                          <p className="font-semibold text-slate-900">{course.courseCode}</p>
-                          <p className="text-slate-600 text-xs">{course.daysTimes}</p>
-                          <p className="text-xs text-slate-400">{course.location}</p>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="border-t border-slate-100 mb-6" />
-
-                    <h3 className="text-base font-semibold text-slate-700 mb-4">Calendar View</h3>
-                    <WeeklyCalendar courses={courses} />
+                    <div>
+                      <h3 className="text-base font-semibold text-slate-700 mb-4">Calendar View</h3>
+                      <WeeklyCalendar courses={courses} />
+                    </div>
                   </div>
 
-                  {/* Right box: Course Cards + Detail */}
-                  <div className="space-y-4 lg:col-span-1">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-base font-semibold text-slate-700">Course Cards</h3>
-                        <p className="text-xs text-slate-400">{courses.length} total</p>
-                      </div>
-                      <div className="space-y-4">
-                        {courses.map((course) => (
-                          <CourseCard
-                            key={course.id}
-                            course={course}
-                            onSelect={setSelectedCourseId}
-                            isSelected={course.id === selectedCourseId}
-                          />
-                        ))}
-                      </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-base font-semibold text-slate-700">Registered Courses</h3>
+                      <p className="text-xs text-slate-400">{courses.length} total</p>
                     </div>
-
-                    <CourseDetailView course={selectedCourse} />
+                    <div className="space-y-4">
+                      {courses.map((course) => (
+                        <CourseCard
+                          key={course.id}
+                          course={course}
+                          onSelect={setSelectedCourseId}
+                          isSelected={course.id === selectedCourseId}
+                        />
+                      ))}
+                    </div>
                   </div>
 
                 </div>
