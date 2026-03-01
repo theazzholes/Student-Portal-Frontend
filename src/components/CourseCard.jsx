@@ -14,11 +14,6 @@ function CourseCard({ course, onSelect, isSelected = false }) {
           </p>
           <h3 className="mt-1 text-lg font-semibold text-slate-900">{className}</h3>
         </div>
-
-        <div className="rounded-lg bg-emerald-50 px-3 py-1 text-right">
-          <p className="text-lg font-bold text-emerald-700">{course.grade.letter}</p>
-          <p className="text-xs font-medium text-emerald-600">{course.grade.percent}%</p>
-        </div>
       </div>
 
       <dl className="mt-5 grid grid-cols-2 gap-4 text-sm text-slate-600">
