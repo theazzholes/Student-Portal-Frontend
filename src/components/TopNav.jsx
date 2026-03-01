@@ -2,6 +2,7 @@ const navItems = [
   { id: 'overview', label: 'Overview' },
   { id: 'courses', label: 'Courses' },
   { id: 'grades', label: 'Grades' },
+  { id: 'schedule', label: 'Schedule'},
 ]
 
 function TopNavbar({ student, activeTab = 'overview', onTabChange }) {

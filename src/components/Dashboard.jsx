@@ -3,6 +3,7 @@ import TopNavbar from './TopNav'
 import CourseCard from './CourseCard'
 import CourseDetailView from './CourseDetailView'
 import { getStudentDashboard } from '../services/studentRepository'
+import WeeklyCalendar from './WeeklyCalendar'
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -153,6 +154,12 @@ function Dashboard() {
                 </ul>
               </section>
             )}
+            {activeTab === 'schedule' && (
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-semibold mb-6">Weekly Schedule</h3>
+                <WeeklyCalendar courses={courses} />
+            </section>
+          )}
           </>
         )}
       </main>
