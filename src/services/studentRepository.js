@@ -258,7 +258,11 @@ function findScheduleEntryForClass(classRecord, scheduleLookup) {
 }
 
 function toWaitlistStatus(classRecord) {
-  const explicitStatus = firstDefined(classRecord.waitlistStatus, classRecord.waitlist?.status)
+  const explicitStatus = firstDefined(
+    classRecord.waitlistStatus,
+    classRecord.waitlist?.status,
+    classRecord.enrollmentStatus,
+  )
   if (explicitStatus) {
     return String(explicitStatus)
   }

@@ -1,6 +1,12 @@
 function CourseCard({ course, onSelect, isSelected = false }) {
   const courseCode = course.courseCode ?? course.code
   const className = course.className ?? course.title
+  const statusSource = String(course.enrollmentStatus ?? course.waitlistStatus ?? '').toLowerCase()
+  const isWaitlisted = statusSource.includes('waitlisted')
+  const statusCode = isWaitlisted ? 'WA' : 'EN'
+  const statusClasses = isWaitlisted
+    ? 'inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-amber-200 bg-amber-100 px-2 text-xs font-semibold uppercase tracking-wide text-amber-800'
+    : 'inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-emerald-200 bg-emerald-100 px-2 text-xs font-semibold uppercase tracking-wide text-emerald-800'
   const cardClasses = isSelected
     ? 'w-full rounded-2xl border border-slate-900 bg-white p-5 text-left shadow-md transition-shadow'
     : 'w-full rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md'
@@ -14,6 +20,9 @@ function CourseCard({ course, onSelect, isSelected = false }) {
           </p>
           <h3 className="mt-1 text-lg font-semibold text-slate-900">{className}</h3>
         </div>
+        <span className={statusClasses} aria-label={isWaitlisted ? 'Waitlisted' : 'Enrolled'}>
+          {statusCode}
+        </span>
       </div>
 
       <dl className="mt-5 grid grid-cols-2 gap-4 text-sm text-slate-600">
