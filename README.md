@@ -1,3 +1,8 @@
+This repo is hosting all the frontend code and components for the CSCE 590 Student portal project.
+React + Vite template was used to set up the structure of the repo.
+
+React Developers: Jerry Qiu, Adrian Alvarez
+-------------------------------------------------
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
