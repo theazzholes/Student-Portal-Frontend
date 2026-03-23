@@ -3,6 +3,7 @@ import TopNavbar from './TopNav'
 import CourseCard from './CourseCard'
 import CourseDetailView from './CourseDetailView'
 import WeeklyCalendar from './WeeklyCalendar'
+import ClassCatalog from './ClassCatalog'
 import { getStudentDashboard } from '../services/studentRepository'
 
 function Dashboard() {
@@ -115,6 +116,10 @@ function Dashboard() {
                   ))}
                 </div>
                 <CourseDetailView course={selectedCourse} />
+
+                <section className="pt-2">
+                  <ClassCatalog />
+                </section>
               </section>
             )}
 
