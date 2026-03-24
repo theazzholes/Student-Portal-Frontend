@@ -1,3 +1,5 @@
+import logo from '../assets/Capgemini Logo final.png'
+
 const navItems = [
   { id: 'overview', label: 'Overview' },
   { id: 'courses', label: 'Courses' },
@@ -16,14 +18,17 @@ function TopNavbar({ student, activeTab = 'overview', onTabChange }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-700 bg-slate-900 text-slate-100">
       <div className="mx-auto flex h-20 w-full max-w-[1600px] items-center justify-between px-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Student Portal
-          </p>
-          <p className="mt-1 text-sm font-semibold text-white">
-            {safeStudent.fullName}
-            {safeStudent.program ? ` | ${safeStudent.program}` : ''}
-          </p>
+        <div className="flex items-center gap-4">
+          <img src={logo} alt="Capgemini logo" className="h-12 w-auto object-contain" />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Student Portal
+            </p>
+            <p className="mt-1 text-sm font-semibold text-white">
+              {safeStudent.fullName}
+              {safeStudent.program ? ` | ${safeStudent.program}` : ''}
+            </p>
+          </div>
         </div>
 
         <nav className="flex items-center gap-2">
