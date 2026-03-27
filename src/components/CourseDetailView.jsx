@@ -4,26 +4,22 @@ function CourseDetailView({ course }) {
       <section className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-6">
         <h4 className="text-lg font-semibold text-slate-900">Course Details</h4>
         <p className="mt-2 text-slate-600">
-          Select a course tile to view instructor details, waitlist status, and class capacity.
+          Select a current class to view the instructor, schedule, location, and enrollment status returned by the API.
         </p>
       </section>
     )
   }
 
   const courseName = course.className ?? course.title
-  const instructor = course.instructor ?? course.professorInfo?.name ?? 'TBA'
+  const instructor = course.instructor ?? 'TBA'
   const location = course.location ?? 'TBA'
-  const waitlistStatus = course.waitlistStatus ?? 'Open'
-  const professorEmail = course.professorInfo?.email ?? 'N/A'
-  const officeHours = course.professorInfo?.officeHours ?? 'TBA'
+  const status = course.enrollmentStatus ?? 'Unknown'
   const enrolled = course.capacity?.enrolled ?? 'N/A'
   const maxCapacity = course.capacity?.max ?? 'N/A'
 
   return (
     <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-        Detailed Class View
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Current Class</p>
       <h4 className="mt-1 text-xl font-semibold text-slate-900">
         {course.courseCode} | {courseName}
       </h4>
@@ -38,21 +34,21 @@ function CourseDetailView({ course }) {
           <dd className="mt-1 font-medium text-slate-900">{location}</dd>
         </div>
         <div className="rounded-xl bg-slate-50 p-4">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Waitlist</dt>
-          <dd className="mt-1 font-medium text-slate-900">{waitlistStatus}</dd>
+          <dt className="text-xs uppercase tracking-wide text-slate-500">Enrollment Status</dt>
+          <dd className="mt-1 font-medium text-slate-900">{status}</dd>
         </div>
         <div className="rounded-xl bg-slate-50 p-4">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Professor Email</dt>
-          <dd className="mt-1 font-medium text-slate-900">{professorEmail}</dd>
+          <dt className="text-xs uppercase tracking-wide text-slate-500">Meeting Times</dt>
+          <dd className="mt-1 font-medium text-slate-900">{course.daysTimes ?? 'TBA'}</dd>
         </div>
         <div className="rounded-xl bg-slate-50 p-4">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Office Hours</dt>
-          <dd className="mt-1 font-medium text-slate-900">{officeHours}</dd>
+          <dt className="text-xs uppercase tracking-wide text-slate-500">Credits</dt>
+          <dd className="mt-1 font-medium text-slate-900">{course.credits ?? 'TBA'}</dd>
         </div>
         <div className="rounded-xl bg-slate-50 p-4">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Class Capacity</dt>
+          <dt className="text-xs uppercase tracking-wide text-slate-500">Capacity</dt>
           <dd className="mt-1 font-medium text-slate-900">
-            {enrolled} / {maxCapacity} enrolled
+            {enrolled} / {maxCapacity}
           </dd>
         </div>
       </dl>

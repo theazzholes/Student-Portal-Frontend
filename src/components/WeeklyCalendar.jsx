@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 const DAY_LABELS = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' }
-
 const COURSE_COLORS = [
   { bg: '#dbeafe', border: '#2563eb', text: '#1e3a5f', accent: '#3b82f6' },
   { bg: '#fce7f3', border: '#db2777', text: '#6b1535', accent: '#ec4899' },
@@ -13,43 +12,43 @@ const COURSE_COLORS = [
 const GRID_START = 8 * 60
 const GRID_END = 18 * 60
 const GRID_MINUTES = GRID_END - GRID_START
+const HOUR_LABELS = Array.from({ length: 11 }, (_, index) => 8 + index)
 
 function timeToMinutes(time) {
-  const [h, m] = time.split(':').map(Number)
-  return h * 60 + m
+  const [hours, minutes] = String(time).split(':').map(Number)
+  return hours * 60 + minutes
 }
 
 function minutesToDisplay(minutes) {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  const ampm = h >= 12 ? 'PM' : 'AM'
-  const displayH = h > 12 ? h - 12 : h === 0 ? 12 : h
-  return `${displayH}:${m.toString().padStart(2, '0')} ${ampm}`
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  const meridiem = hours >= 12 ? 'PM' : 'AM'
+  const displayHour = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
+  return `${displayHour}:${String(mins).padStart(2, '0')} ${meridiem}`
 }
 
-const HOUR_LABELS = []
-for (let h = 8; h <= 18; h++) HOUR_LABELS.push(h)
-
-export default function WeeklyCalendar({ courses = [] }) {
+export default function WeeklyCalendar({
+  courses = [],
+  title = 'Weekly Schedule',
+  emptyMessage = 'No courses found to display on the calendar.',
+}) {
   const [tooltip, setTooltip] = useState(null)
 
-  const colorMap = {}
-  courses.forEach((course, i) => {
-    colorMap[course.id] = COURSE_COLORS[i % COURSE_COLORS.length]
-  })
+  const colorMap = Object.fromEntries(
+    courses.map((course, index) => [course.id, COURSE_COLORS[index % COURSE_COLORS.length]]),
+  )
 
-  const dayBlocks = {}
-  DAYS.forEach(d => { dayBlocks[d] = [] })
+  const dayBlocks = Object.fromEntries(DAYS.map((day) => [day, []]))
 
-  courses.forEach(course => {
-    const schedule = course.schedule ?? []
-    schedule.forEach(slot => {
+  courses.forEach((course) => {
+    ;(course.schedule ?? []).forEach((slot) => {
       const startMin = timeToMinutes(slot.startTime)
       const endMin = timeToMinutes(slot.endTime)
       const top = ((startMin - GRID_START) / GRID_MINUTES) * 100
       const height = ((endMin - startMin) / GRID_MINUTES) * 100
+
       if (dayBlocks[slot.day]) {
-        dayBlocks[slot.day].push({ course, startMin, endMin, top, height })
+        dayBlocks[slot.day].push({ course, startMin, endMin, top, height, slot })
       }
     })
   })
@@ -57,8 +56,8 @@ export default function WeeklyCalendar({ courses = [] }) {
   if (courses.length === 0) {
     return (
       <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-6">
-        <h4 className="text-lg font-semibold text-slate-900">Weekly Schedule</h4>
-        <p className="mt-2 text-slate-600">No courses found to display on the calendar.</p>
+        <h4 className="text-lg font-semibold text-slate-900">{title}</h4>
+        <p className="mt-2 text-slate-600">{emptyMessage}</p>
       </section>
     )
   }
@@ -78,11 +77,11 @@ export default function WeeklyCalendar({ courses = [] }) {
           overflow: hidden;
           border-left-width: 4px;
           border-left-style: solid;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
         }
         .cal-block:hover {
           transform: translateY(-1px) scale(1.01);
-          box-shadow: 0 6px 16px rgba(0,0,0,0.14);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
           z-index: 10;
         }
         .cal-block-code {
@@ -102,16 +101,18 @@ export default function WeeklyCalendar({ courses = [] }) {
         .cal-block-meta {
           font-size: 0.7rem;
           line-height: 1.4;
-          opacity: 0.75;
+          opacity: 0.8;
         }
         .hour-line {
           position: absolute;
-          left: 0; right: 0;
+          left: 0;
+          right: 0;
           border-top: 1px solid #e2e8f0;
         }
         .half-line {
           position: absolute;
-          left: 0; right: 0;
+          left: 0;
+          right: 0;
           border-top: 1px dashed #f1f5f9;
         }
         .cal-tooltip {
@@ -124,103 +125,109 @@ export default function WeeklyCalendar({ courses = [] }) {
           pointer-events: none;
           z-index: 999;
           max-width: 230px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
           line-height: 1.6;
         }
       `}</style>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-        {courses.map((course, i) => {
-          const color = COURSE_COLORS[i % COURSE_COLORS.length]
-          const code = course.courseCode ?? course.code
-          const name = course.className ?? course.title
+        {courses.map((course, index) => {
+          const color = COURSE_COLORS[index % COURSE_COLORS.length]
           return (
-            <div key={course.id} style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: color.bg,
-              border: `1px solid ${color.border}`,
-              borderRadius: '20px', padding: '4px 12px',
-              fontSize: '0.78rem', fontWeight: 600, color: color.text,
-            }}>
+            <div
+              key={course.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: color.bg,
+                border: `1px solid ${color.border}`,
+                borderRadius: '20px',
+                padding: '4px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: color.text,
+              }}
+            >
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: color.accent, display: 'inline-block', flexShrink: 0 }} />
-              {code} — {name}
+              {course.courseCode} | {course.className}
             </div>
           )
         })}
       </div>
 
-      <div style={{
-        background: 'white',
-        borderRadius: '14px',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-        overflow: 'hidden',
-        border: '1px solid #e2e8f0',
-      }}>
-
+      <div
+        style={{
+          background: 'white',
+          borderRadius: '14px',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          overflow: 'hidden',
+          border: '1px solid #e2e8f0',
+        }}
+      >
         <div style={{ display: 'grid', gridTemplateColumns: '56px repeat(5, 1fr)', borderBottom: '2px solid #e2e8f0' }}>
           <div style={{ background: '#f8fafc' }} />
-          {DAYS.map(day => (
-            <div key={day} style={{
-              padding: '12px 8px',
-              textAlign: 'center',
-              background: '#f8fafc',
-              borderLeft: '1px solid #e2e8f0',
-            }}>
+          {DAYS.map((day) => (
+            <div
+              key={day}
+              style={{
+                padding: '12px 8px',
+                textAlign: 'center',
+                background: '#f8fafc',
+                borderLeft: '1px solid #e2e8f0',
+              }}
+            >
               <span style={{ display: 'block', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 {day}
               </span>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>
-                {DAY_LABELS[day].slice(0, 3)}
-              </span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151' }}>{DAY_LABELS[day]}</span>
             </div>
           ))}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '56px repeat(5, 1fr)' }}>
-
           <div style={{ position: 'relative', height: `${GRID_MINUTES}px` }}>
-            {HOUR_LABELS.map(h => {
-              const top = ((h * 60 - GRID_START) / GRID_MINUTES) * GRID_MINUTES
-              const label = h > 12 ? `${h - 12}pm` : h === 12 ? '12pm' : `${h}am`
+            {HOUR_LABELS.map((hour) => {
+              const top = ((hour * 60 - GRID_START) / GRID_MINUTES) * GRID_MINUTES
+              const label = hour > 12 ? `${hour - 12}pm` : hour === 12 ? '12pm' : `${hour}am`
               return (
-                <div key={h} style={{
-                  position: 'absolute',
-                  top: top - 8,
-                  right: 6,
-                  fontSize: '0.68rem',
-                  color: '#94a3b8',
-                  fontFamily: "'DM Mono', monospace",
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap',
-                }}>
+                <div
+                  key={hour}
+                  style={{
+                    position: 'absolute',
+                    top: top - 8,
+                    right: 6,
+                    fontSize: '0.68rem',
+                    color: '#94a3b8',
+                    fontFamily: "'DM Mono', monospace",
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {label}
                 </div>
               )
             })}
           </div>
 
-          {DAYS.map(day => (
-            <div key={day} style={{
-              position: 'relative',
-              height: `${GRID_MINUTES}px`,
-              borderLeft: '1px solid #e2e8f0',
-            }}>
-              {HOUR_LABELS.map(h => (
-                <div key={h} className="hour-line" style={{ top: `${((h * 60 - GRID_START) / GRID_MINUTES) * 100}%` }} />
+          {DAYS.map((day) => (
+            <div key={day} style={{ position: 'relative', height: `${GRID_MINUTES}px`, borderLeft: '1px solid #e2e8f0' }}>
+              {HOUR_LABELS.map((hour) => (
+                <div key={hour} className="hour-line" style={{ top: `${((hour * 60 - GRID_START) / GRID_MINUTES) * 100}%` }} />
               ))}
-              {HOUR_LABELS.map(h => {
-                const top = (((h * 60 + 30) - GRID_START) / GRID_MINUTES) * 100
-                if (top < 0 || top > 100) return null
-                return <div key={`${h}-half`} className="half-line" style={{ top: `${top}%` }} />
+              {HOUR_LABELS.map((hour) => {
+                const top = (((hour * 60 + 30) - GRID_START) / GRID_MINUTES) * 100
+                if (top < 0 || top > 100) {
+                  return null
+                }
+                return <div key={`${hour}-half`} className="half-line" style={{ top: `${top}%` }} />
               })}
 
-              {dayBlocks[day].map(({ course, top, height, startMin, endMin }) => {
+              {dayBlocks[day].map(({ course, top, height, startMin, endMin, slot }) => {
                 const color = colorMap[course.id]
-                const code = course.courseCode ?? course.code
-                const name = course.className ?? course.title
                 return (
                   <div
-                    key={`${course.id}-${day}`}
+                    key={`${course.id}-${day}-${slot.startTime}`}
                     className="cal-block"
                     style={{
                       top: `${top}%`,
@@ -229,14 +236,26 @@ export default function WeeklyCalendar({ courses = [] }) {
                       borderLeftColor: color.border,
                       color: color.text,
                     }}
-                    onMouseEnter={e => setTooltip({ course, code, name, x: e.clientX + 14, y: e.clientY - 10, time: `${minutesToDisplay(startMin)} – ${minutesToDisplay(endMin)}` })}
-                    onMouseMove={e => setTooltip(t => t ? { ...t, x: e.clientX + 14, y: e.clientY - 10 } : null)}
+                    onMouseEnter={(event) =>
+                      setTooltip({
+                        course,
+                        x: event.clientX + 14,
+                        y: event.clientY - 10,
+                        time: `${minutesToDisplay(startMin)} - ${minutesToDisplay(endMin)}`,
+                        location: slot.location,
+                      })
+                    }
+                    onMouseMove={(event) =>
+                      setTooltip((current) =>
+                        current ? { ...current, x: event.clientX + 14, y: event.clientY - 10 } : null,
+                      )
+                    }
                     onMouseLeave={() => setTooltip(null)}
                   >
-                    <div className="cal-block-code">{code}</div>
-                    <div className="cal-block-name">{name}</div>
-                    <div className="cal-block-meta">{course.instructor}</div>
-                    <div className="cal-block-meta">📍 {course.location}</div>
+                    <div className="cal-block-code">{course.courseCode}</div>
+                    <div className="cal-block-name">{course.className}</div>
+                    <div className="cal-block-meta">Instructor: {course.instructor}</div>
+                    <div className="cal-block-meta">Location: {slot.location}</div>
                   </div>
                 )
               })}
@@ -247,10 +266,12 @@ export default function WeeklyCalendar({ courses = [] }) {
 
       {tooltip && (
         <div className="cal-tooltip" style={{ left: tooltip.x, top: tooltip.y }}>
-          <div style={{ fontWeight: 700, marginBottom: 5, fontSize: '13px' }}>{tooltip.code} — {tooltip.name}</div>
-          <div style={{ opacity: 0.75, fontSize: '12px' }}>🕐 {tooltip.time}</div>
-          <div style={{ opacity: 0.75, fontSize: '12px' }}>👤 {tooltip.course.instructor}</div>
-          <div style={{ opacity: 0.75, fontSize: '12px' }}>📍 {tooltip.course.location}</div>
+          <div style={{ fontWeight: 700, marginBottom: 5, fontSize: '13px' }}>
+            {tooltip.course.courseCode} | {tooltip.course.className}
+          </div>
+          <div style={{ opacity: 0.8, fontSize: '12px' }}>Time: {tooltip.time}</div>
+          <div style={{ opacity: 0.8, fontSize: '12px' }}>Instructor: {tooltip.course.instructor}</div>
+          <div style={{ opacity: 0.8, fontSize: '12px' }}>Location: {tooltip.location}</div>
         </div>
       )}
     </div>

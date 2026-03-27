@@ -4,26 +4,17 @@ const navItems = [
   { id: 'overview', label: 'Overview' },
   { id: 'courses', label: 'Courses' },
   { id: 'grades', label: 'Grades' },
-  { id: 'schedule', label: 'Schedule'},
+  { id: 'schedule', label: 'Schedule' },
 ]
 
 function TopNavbar({ student, activeTab = 'overview', onTabChange }) {
-  const safeStudent = student ?? {
-    fullName: 'Loading student...',
-    program: '',
-    term: '',
-    gpa: 0,
-  }
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-700 bg-slate-900 text-slate-100">
       <div className="mx-auto grid h-20 w-full max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-6">
         <div className="flex items-center gap-4">
           <img src={logo} alt="Capgemini logo" className="h-12 w-auto object-contain" />
           <div>
-            <p className="text-xs font-semibold text-white uppercase tracking-wide text-slate-400">
-              Student Portal
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Student Portal</p>
           </div>
         </div>
 
@@ -36,9 +27,7 @@ function TopNavbar({ student, activeTab = 'overview', onTabChange }) {
                 type="button"
                 onClick={() => onTabChange?.(item.id)}
                 className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-slate-100 text-slate-900'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  isActive ? 'bg-slate-100 text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -46,7 +35,11 @@ function TopNavbar({ student, activeTab = 'overview', onTabChange }) {
             )
           })}
         </nav>
-        <div aria-hidden="true" />
+
+        <div className="justify-self-end text-right">
+          <p className="text-sm font-semibold text-white">{student?.fullName ?? 'Loading student...'}</p>
+          <p className="text-xs text-slate-400">{student?.email ?? ''}</p>
+        </div>
       </div>
     </header>
   )
