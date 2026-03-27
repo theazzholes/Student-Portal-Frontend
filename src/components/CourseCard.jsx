@@ -1,52 +1,46 @@
 function CourseCard({ course, onSelect, isSelected = false }) {
   const courseCode = course.courseCode ?? course.code
   const className = course.className ?? course.title
+  const credits = Number.isFinite(course.credits) ? course.credits : course.credits ?? 'TBA'
+  const daysTimes = course.daysTimes ?? 'TBA'
   const statusSource = String(course.enrollmentStatus ?? course.waitlistStatus ?? '').toLowerCase()
   const isWaitlisted = statusSource.includes('waitlisted')
+  const statusLabel = isWaitlisted ? 'Waitlisted' : 'Enrolled'
   const statusCode = isWaitlisted ? 'WA' : 'EN'
   const statusClasses = isWaitlisted
-    ? 'inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-amber-200 bg-amber-100 px-2 text-xs font-semibold uppercase tracking-wide text-amber-800'
-    : 'inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-emerald-200 bg-emerald-100 px-2 text-xs font-semibold uppercase tracking-wide text-emerald-800'
+    ? 'inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800'
+    : 'inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800'
+  const accessibilityLabel = `${courseCode ?? 'TBA'} ${className ?? 'Untitled Class'}, ${credits} credits, ${daysTimes}, ${statusLabel}`
   const cardClasses = isSelected
-    ? 'w-full rounded-2xl border border-slate-900 bg-white p-5 text-left shadow-md transition-shadow'
-    : 'w-full rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md'
+    ? 'w-full rounded-xl border border-slate-900 bg-slate-900 px-3.5 py-3 text-left text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2'
+    : 'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-left text-slate-900 shadow-sm transition-colors hover:border-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2'
 
   return (
-    <button type="button" onClick={() => onSelect?.(course.id)} className={cardClasses} style={{ minHeight: '200px' }}>
+    <button
+      type="button"
+      onClick={() => onSelect?.(course.id)}
+      className={cardClasses}
+      aria-pressed={isSelected}
+      aria-label={accessibilityLabel}
+    >
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {courseCode}
+        <div className="min-w-0">
+          <p className={`text-[11px] font-semibold uppercase tracking-wide ${isSelected ? 'text-slate-200' : 'text-slate-600'}`}>
+            {courseCode ?? 'TBA'}
           </p>
-          <h3 className="mt-1 text-lg font-semibold text-slate-900">{className}</h3>
+          <h3 className={`mt-0.5 truncate text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+            {className ?? 'Untitled Class'}
+          </h3>
         </div>
-        <span className={statusClasses} aria-label={isWaitlisted ? 'Waitlisted' : 'Enrolled'}>
-          {statusCode}
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <p className={`text-xs font-semibold ${isSelected ? 'text-slate-100' : 'text-slate-700'}`}>{credits} cr</p>
+          <span className={statusClasses} aria-label={statusLabel}>
+            {statusCode}
+          </span>
+        </div>
       </div>
 
-      <dl className="mt-5 grid grid-cols-2 gap-4 text-sm text-slate-600">
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Instructor</dt>
-          <dd className="mt-1 font-medium text-slate-700 truncate">{course.instructor}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Days / Times</dt>
-          <dd className="mt-1 font-medium text-slate-700">{course.daysTimes}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Location</dt>
-          <dd className="mt-1 font-medium text-slate-700 truncate">{course.location}</dd>
-        </div>
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Credits</dt>
-          <dd className="mt-1 font-medium text-slate-700">{course.credits}</dd>
-        </div>
-        <div className="col-span-2">
-          <dt className="text-xs uppercase tracking-wide text-slate-400">Waitlist</dt>
-          <dd className="mt-1 font-medium text-slate-700">{course.waitlistStatus}</dd>
-        </div>
-      </dl>
+      <p className={`mt-2 text-xs font-medium ${isSelected ? 'text-slate-200' : 'text-slate-700'}`}>{daysTimes}</p>
     </button>
   )
 }

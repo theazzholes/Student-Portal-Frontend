@@ -42,9 +42,9 @@ function Dashboard() {
                 <header className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Welcome back</p>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-600">Welcome back</p>
                       <h2 className="text-2xl font-bold leading-tight">{student?.fullName}</h2>
-                      <p className="text-sm text-slate-500">{student?.program}</p>
+                      <p className="text-sm text-slate-600">{student?.program}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center">
@@ -78,12 +78,12 @@ function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-1">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-1 lg:flex lg:h-[42rem] lg:flex-col">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-base font-semibold text-slate-700">Registered Courses</h3>
                       <p className="text-xs text-slate-400">{courses.length} total</p>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-2 lg:flex-1 lg:overflow-y-auto lg:pr-1" aria-label="Registered courses">
                       {courses.map((course) => (
                         <CourseCard
                           key={course.id}
@@ -99,29 +99,7 @@ function Dashboard() {
               </section>
             )}
 
-            {activeTab === 'courses' && (
-              <section className="space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-xl font-semibold">Registered Courses</h3>
-                  <p className="text-sm text-slate-500">{courses.length} total</p>
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                  {courses.map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      course={course}
-                      onSelect={setSelectedCourseId}
-                      isSelected={course.id === selectedCourseId}
-                    />
-                  ))}
-                </div>
-                <CourseDetailView course={selectedCourse} />
-
-                <section className="pt-2">
-                  <ClassCatalog />
-                </section>
-              </section>
-            )}
+            {activeTab === 'courses' && <ClassCatalog />}
 
             {activeTab === 'grades' && (
               <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

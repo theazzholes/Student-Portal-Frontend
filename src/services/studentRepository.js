@@ -296,8 +296,100 @@ function toCourseCode(classRecord) {
   return 'TBA'
 }
 
+function normalizeCatalogClass(classRecord, index = 0) {
+  const safeClass = classRecord ?? {}
+  const sections = Array.isArray(safeClass.sections) ? safeClass.sections : []
+  const primarySection = sections[0] ?? {}
+
+  const normalizedSchedule = normalizeSlots([
+    ...extractRawSlots(primarySection),
+    ...extractRawSlots(safeClass),
+  ])
+
+  const department = firstDefined(
+    safeClass.department,
+    safeClass.departmentId,
+    safeClass.subjectCode,
+    safeClass.subject,
+    'General',
+  )
+
+  const maxCapacity = toNumber(
+    firstDefined(primarySection.capacity, safeClass.maxCapacity, safeClass.capacityLimit, safeClass.maxEnrollment),
+    0,
+  )
+  const enrolledCount = toNumber(
+    firstDefined(primarySection.enrolled, safeClass.enrolledCount, safeClass.enrolled),
+    0,
+  )
+  const availableSeats = toNumber(
+    firstDefined(primarySection.availableSeats, safeClass.availableSeats, maxCapacity - enrolledCount),
+    0,
+  )
+
+  const courseCode = toCourseCode({
+    ...safeClass,
+    department,
+  })
+
+  const uniqueId = firstDefined(
+    safeClass.id,
+    safeClass.classId,
+    safeClass.courseId,
+    `${courseCode}-${index + 1}`,
+  )
+
+  return {
+    ...safeClass,
+    id: String(uniqueId),
+    classId: firstDefined(safeClass.classId, safeClass.id, safeClass.courseId, null),
+    department: String(department),
+    courseCode,
+    className: String(
+      firstDefined(safeClass.className, safeClass.courseName, safeClass.title, safeClass.name, 'Untitled Class'),
+    ),
+    instructor: String(
+      firstDefined(
+        primarySection.instructorName,
+        safeClass.instructorName,
+        safeClass.instructor,
+        safeClass.professorName,
+        'TBA',
+      ),
+    ),
+    displayTimes: toDaysTimes(normalizedSchedule, firstDefined(primarySection.daysTimes, safeClass.daysTimes, '')),
+    location: String(
+      firstDefined(
+        primarySection.location,
+        primarySection.room,
+        safeClass.location,
+        safeClass.room,
+        normalizedSchedule[0]?.location,
+        'TBA',
+      ),
+    ),
+    credits: toNumber(firstDefined(safeClass.credits, safeClass.creditHours), 0),
+    availableSeats: Math.max(0, availableSeats),
+    maxCapacity: Math.max(0, maxCapacity),
+    term: String(firstDefined(safeClass.term, safeClass.semester, safeClass.sessionTerm, '')),
+    schedule: normalizedSchedule,
+    sections,
+  }
+}
+
+function extractCurrentUserPayload(payload) {
+  if (!payload || Array.isArray(payload)) {
+    return {}
+  }
+
+  return payload.currentUser ?? payload.user ?? payload.profile ?? payload.data?.currentUser ?? payload.data?.user ?? payload
+}
+
 export async function getStudentDashboard() {
-  const classesData = await getCurrentStudentClasses()
+  const [classesData, currentUserData] = await Promise.all([
+    getCurrentStudentClasses(),
+    getCurrentUser().catch(() => null),
+  ])
   const classEntries = extractArrayPayload(classesData, [
     'classes',
     'currentClasses',
@@ -314,11 +406,6 @@ export async function getStudentDashboard() {
   })
 
   const scheduleData = needsScheduleData ? await getCurrentStudentSchedule() : null
-  const apiData = {
-    classes: classesData,
-    schedule: scheduleData,
-  }
-  console.log('Real API Data:', apiData)
 
   const scheduleEntries = extractArrayPayload(scheduleData, [
     'schedule',
@@ -330,9 +417,11 @@ export async function getStudentDashboard() {
 
   const studentFromClasses = extractStudentPayload(classesData)
   const studentFromSchedule = extractStudentPayload(scheduleData)
+  const studentFromCurrentUser = extractCurrentUserPayload(currentUserData)
   const studentProfile = {
     ...studentFromSchedule,
     ...studentFromClasses,
+    ...studentFromCurrentUser,
   }
 
   const fullNameFromParts = [
@@ -507,24 +596,119 @@ function buildApiUrl(path, queryParams = {}) {
   return url
 }
 
-async function fetchJson(path, queryParams = {}) {
+function extractErrorMessage(payload) {
+  if (!payload) {
+    return ''
+  }
+
+  const directMessage = firstDefined(
+    payload.message,
+    payload.error,
+    payload.detail,
+    payload.reason,
+    payload.title,
+    payload.data?.message,
+    payload.data?.error,
+  )
+  if (directMessage) {
+    return String(directMessage).trim()
+  }
+
+  if (Array.isArray(payload.errors)) {
+    const combinedErrors = payload.errors
+      .map((entry) => {
+        if (!entry) {
+          return ''
+        }
+        if (typeof entry === 'string') {
+          return entry
+        }
+        return firstDefined(entry.message, entry.error, entry.detail, '')
+      })
+      .filter(Boolean)
+      .join('; ')
+
+    if (combinedErrors) {
+      return String(combinedErrors).trim()
+    }
+  }
+
+  return ''
+}
+
+async function getResponseErrorMessage(response) {
+  const contentType = response.headers.get('content-type') || ''
+
+  if (contentType.includes('application/json')) {
+    try {
+      const payload = await response.json()
+      const message = extractErrorMessage(payload)
+      if (message) {
+        return message
+      }
+    } catch {
+      // Ignore JSON parse errors and fall back to status text.
+    }
+  } else {
+    try {
+      const text = (await response.text()).trim()
+      if (text) {
+        return text
+      }
+    } catch {
+      // Ignore text read errors and fall back to status text.
+    }
+  }
+
+  return ''
+}
+
+async function requestJson(path, { method = 'GET', queryParams = {}, body } = {}) {
   const url = buildApiUrl(path, queryParams)
   const urlString = url.toString()
 
+  const requestOptions = {
+    method,
+  }
+
+  if (body !== undefined) {
+    requestOptions.headers = {
+      'Content-Type': 'application/json',
+    }
+    requestOptions.body = JSON.stringify(body)
+  }
+
   let response
   try {
-    response = await fetch(urlString)
+    response = await fetch(urlString, requestOptions)
   } catch (error) {
     throw new Error(`Failed to connect to ${urlString}: ${error.message}`)
   }
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to connect to ${urlString}: HTTP ${response.status} ${response.statusText}`,
-    )
+    const serverMessage = await getResponseErrorMessage(response)
+    const fallbackMessage = `Request failed (${method} ${path}): HTTP ${response.status} ${response.statusText}`
+    throw new Error(serverMessage || fallbackMessage)
+  }
+
+  if (response.status === 204) {
+    return null
+  }
+
+  const contentType = response.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    return null
   }
 
   return response.json()
+}
+
+async function fetchJson(path, queryParams = {}) {
+  return requestJson(path, { method: 'GET', queryParams })
+}
+
+async function postJson(path, body, queryParams = {}) {
+  return requestJson(path, { method: 'POST', body, queryParams })
 }
 
 export async function getCurrentStudentClasses() {
@@ -535,8 +719,14 @@ export async function getCurrentStudentSchedule() {
   return fetchJson('/students/current/schedule')
 }
 
+export async function getCurrentUser() {
+  return fetchJson('/users/current')
+}
+
 export async function getClasses(departmentId) {
-  return fetchJson('/classes', { departmentId })
+  const classesData = await fetchJson('/classes', { departmentId })
+  const classEntries = extractArrayPayload(classesData, ['classes', 'catalog', 'courses'])
+  return classEntries.map((entry, index) => normalizeCatalogClass(entry, index))
 }
 
 export async function getClassById(classId) {
@@ -545,6 +735,22 @@ export async function getClassById(classId) {
   }
 
   return fetchJson(`/classes/${classId}`)
+}
+
+export async function enrollInClass(sectionId) {
+  if (!sectionId) {
+    throw new Error('sectionId is required for POST /students/current/enroll')
+  }
+
+  return postJson('/students/current/enroll', { sectionId })
+}
+
+export async function dropClass(sectionId) {
+  if (!sectionId) {
+    throw new Error('sectionId is required for POST /students/current/unenroll')
+  }
+
+  return postJson('/students/current/unenroll', { sectionId })
 }
 
 function extractClassId(classDetailsList) {

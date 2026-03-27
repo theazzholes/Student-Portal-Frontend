@@ -150,7 +150,7 @@ function ClassCatalog() {
           </div>
 
           <div className="mt-3">
-            <label htmlFor="class-catalog-search" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label htmlFor="class-catalog-search" className="text-xs font-bold uppercase tracking-wide text-slate-700">
               Search by Class Name or Code
             </label>
             <input
@@ -159,14 +159,14 @@ function ClassCatalog() {
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Ex: BIOL 1308"
-              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             />
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Term</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-700">Term</p>
             {termOptions.length === 0 ? (
-              <p className="mt-2 text-xs text-slate-500">No terms available.</p>
+              <p className="mt-2 text-xs text-slate-700">No terms available.</p>
             ) : (
               <div className="mt-2 flex flex-wrap gap-2">
                 {termOptions.map((term) => {
@@ -176,10 +176,10 @@ function ClassCatalog() {
                       key={term}
                       type="button"
                       onClick={() => handleTermToggle(term)}
-                      className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                      className={`rounded-full px-2.5 py-1 text-xs transition-colors ${
                         selected
-                          ? 'border-slate-900 bg-slate-900 text-white'
-                          : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                          ? 'bg-slate-900 text-white'
+                          : 'bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200'
                       }`}
                     >
                       {term}
@@ -191,9 +191,9 @@ function ClassCatalog() {
           </div>
 
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Department</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-700">Department</p>
             {departmentOptions.length === 0 ? (
-              <p className="mt-2 text-xs text-slate-500">No departments available.</p>
+              <p className="mt-2 text-xs text-slate-700">No departments available.</p>
             ) : (
               <div className="mt-2 max-h-56 space-y-1.5 overflow-auto pr-1">
                 {departmentOptions.map((department) => {
@@ -207,9 +207,9 @@ function ClassCatalog() {
                         type="checkbox"
                         checked={checked}
                         onChange={() => handleDepartmentToggle(department)}
-                        className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                        className="h-4 w-4 rounded border-slate-400 text-slate-900 focus:ring-slate-900"
                       />
-                      <span className="text-sm text-slate-700">{department}</span>
+                      <span className="text-sm font-medium text-slate-900">{department}</span>
                     </label>
                   )
                 })}
@@ -226,13 +226,13 @@ function ClassCatalog() {
           )}
 
           {!loading && errorMessage && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
               {errorMessage}
             </div>
           )}
 
           {!loading && !errorMessage && filteredClasses.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-700">
               No classes match your current filters. Try broadening your search or reset filters.
             </div>
           )}
@@ -240,7 +240,10 @@ function ClassCatalog() {
           {!loading && !errorMessage && filteredClasses.length > 0 && (
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
               {filteredClasses.map((catalogClass) => (
-                <CatalogCard key={catalogClass.id} catalogClass={catalogClass} />
+                <CatalogCard
+                  key={catalogClass.id ?? catalogClass.classId ?? catalogClass.courseCode}
+                  catalogClass={catalogClass}
+                />
               ))}
             </div>
           )}
