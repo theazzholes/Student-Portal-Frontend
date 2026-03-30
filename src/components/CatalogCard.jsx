@@ -2,10 +2,14 @@ function CatalogCard({ catalogClass, isSelected = false, onSelect }) {
   const safeClass = catalogClass ?? {}
   const availableSeats = Number.isFinite(Number(safeClass.availableSeats))
     ? Number(safeClass.availableSeats)
-    : 0
+    : null
   const maxCapacity = Number.isFinite(Number(safeClass.maxCapacity))
     ? Number(safeClass.maxCapacity)
+    : null
+  const waitlistedCount = Number.isFinite(Number(safeClass.waitlistedCount))
+    ? Number(safeClass.waitlistedCount)
     : 0
+  const seatsLabel = safeClass.sectionAvailability ?? 'Availability unavailable'
 
   return (
     <button
@@ -50,7 +54,12 @@ function CatalogCard({ catalogClass, isSelected = false, onSelect }) {
         </div>
         <div>
           <dt className={isSelected ? 'text-slate-400' : 'text-slate-400'}>Seats</dt>
-          <dd className="mt-0.5 font-medium">{availableSeats}/{maxCapacity}</dd>
+          <dd className="mt-0.5 font-medium">{seatsLabel}</dd>
+          <dd className={`mt-0.5 ${isSelected ? 'text-slate-400' : 'text-slate-500'}`}>
+            {availableSeats ?? 'N/A'} open
+            {maxCapacity !== null ? ` • ${maxCapacity} capacity` : ''}
+            {waitlistedCount > 0 ? ` • ${waitlistedCount} waitlisted` : ''}
+          </dd>
         </div>
       </dl>
 

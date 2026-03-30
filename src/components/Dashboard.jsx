@@ -6,6 +6,15 @@ import WeeklyCalendar from './WeeklyCalendar'
 import ClassCatalog from './ClassCatalog'
 import { getStudentDashboard } from '../services/studentRepository'
 
+function EnrollmentBadge({ status }) {
+  const isWaitlisted = String(status ?? '').toLowerCase().includes('waitlist')
+  const classes = isWaitlisted
+    ? 'inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800'
+    : 'inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800'
+
+  return <span className={classes}>{status}</span>
+}
+
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [selectedCourseId, setSelectedCourseId] = useState(null)
@@ -119,8 +128,12 @@ function Dashboard() {
                 </p>
                 <ul className="mt-4 space-y-2 text-sm text-slate-700">
                   {courses.map((course) => (
-                    <li key={course.id}>
-                      <span className="font-semibold">{course.courseCode}</span> | {course.className} | {course.enrollmentStatus}
+                    <li key={course.id} className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{course.courseCode}</span>
+                      <span>|</span>
+                      <span>{course.className}</span>
+                      <span>|</span>
+                      <EnrollmentBadge status={course.enrollmentStatus} />
                     </li>
                   ))}
                 </ul>

@@ -6,7 +6,6 @@ function CourseCard({ course, onSelect, isSelected = false }) {
   const statusSource = String(course.enrollmentStatus ?? course.waitlistStatus ?? '').toLowerCase()
   const isWaitlisted = statusSource.includes('waitlisted')
   const statusLabel = isWaitlisted ? 'Waitlisted' : 'Enrolled'
-  const statusCode = isWaitlisted ? 'WA' : 'EN'
   const statusClasses = isWaitlisted
     ? 'inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800'
     : 'inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800'
@@ -35,7 +34,7 @@ function CourseCard({ course, onSelect, isSelected = false }) {
         <div className="flex shrink-0 flex-col items-end gap-1">
           <p className={`text-xs font-semibold ${isSelected ? 'text-slate-100' : 'text-slate-700'}`}>{credits} cr</p>
           <span className={statusClasses} aria-label={statusLabel}>
-            {statusCode}
+            {statusLabel}
           </span>
         </div>
       </div>

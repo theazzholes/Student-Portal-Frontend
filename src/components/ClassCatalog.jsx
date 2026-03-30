@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { dropClass, enrollInClass, getClasses, getInstructors } from '../services/studentRepository'
 import CatalogCard from './CatalogCard'
 import WeeklyCalendar from './WeeklyCalendar'
@@ -27,8 +27,15 @@ function toActionLabel(action) {
 }
 
 function toSuccessMessage(response) {
-  const actionLabel = response.action === 'enroll' ? 'Enrolled' : 'Unenrolled'
-  return `${actionLabel} in ${response.code} section ${response.sectionId}. Status: ${response.enrollmentStatus}.`
+  if (response.action === 'enroll') {
+    if (response.enrollmentStatus === 'Waitlisted') {
+      return `Added to the waitlist for ${response.code} section ${response.sectionId}.`
+    }
+
+    return `Enrolled in ${response.code} section ${response.sectionId}.`
+  }
+
+  return `Unenrolled from ${response.code} section ${response.sectionId}.`
 }
 
 function toFailureMessage(action, error) {
@@ -45,6 +52,29 @@ function toSectionPreviewCourse(source, section, label = 'Preview') {
     location: section.schedule?.[0]?.location ?? 'TBA',
     schedule: section.schedule ?? [],
   }
+}
+
+function renderSectionAvailability(section) {
+  return section.availabilityLabel ?? 'Availability unavailable'
+}
+
+function renderSectionCapacityMeta(section) {
+  const capacity = Number.isFinite(Number(section.capacity)) ? Number(section.capacity) : null
+  const enrolledCount = Number.isFinite(Number(section.enrolledCount)) ? Number(section.enrolledCount) : null
+  const waitlistedCount = Number.isFinite(Number(section.waitlistedCount)) ? Number(section.waitlistedCount) : 0
+
+  const pieces = []
+  if (enrolledCount !== null) {
+    pieces.push(`${enrolledCount} enrolled`)
+  }
+  if (capacity !== null) {
+    pieces.push(`${capacity} capacity`)
+  }
+  if (waitlistedCount > 0) {
+    pieces.push(`${waitlistedCount} waitlisted`)
+  }
+
+  return pieces.join(' • ') || 'No seat data returned'
 }
 
 function buildInstructorBrowseData(classes, instructors) {
@@ -100,22 +130,24 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
   const [mutationError, setMutationError] = useState('')
   const [mutatingSectionId, setMutatingSectionId] = useState(null)
 
+  const loadRegistrationData = useCallback(async () => {
+    setLoading(true)
+    setErrorMessage('')
+
+    const [classData, instructorData] = await Promise.all([getClasses(), getInstructors()])
+    setClasses(classData)
+    setInstructors(instructorData)
+    setSelectedClassId((current) => current ?? classData[0]?.classId ?? null)
+    setSelectedInstructorId((current) => current ?? instructorData[0]?.instructorId ?? null)
+  }, [])
+
   useEffect(() => {
     let isMounted = true
 
-    Promise.all([getClasses(), getInstructors()])
-      .then(([classData, instructorData]) => {
+    loadRegistrationData()
+      .then(() => {
         if (!isMounted) {
           return
-        }
-
-        setClasses(classData)
-        setInstructors(instructorData)
-        if (classData[0]?.classId) {
-          setSelectedClassId((current) => current ?? classData[0].classId)
-        }
-        if (instructorData[0]?.instructorId) {
-          setSelectedInstructorId((current) => current ?? instructorData[0].instructorId)
         }
       })
       .catch((error) => {
@@ -132,7 +164,7 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loadRegistrationData])
 
   const departmentOptions = useMemo(() => {
     return [...new Set(classes.map((catalogClass) => catalogClass.department).filter(Boolean))].sort((a, b) =>
@@ -229,7 +261,7 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
     try {
       const response = action === 'enroll' ? await enrollInClass(sectionId) : await dropClass(sectionId)
       setMutationMessage(toSuccessMessage(response))
-      onEnrollmentChange?.()
+      await Promise.all([loadRegistrationData(), onEnrollmentChange?.()])
     } catch (error) {
       setMutationError(toFailureMessage(action, error))
     } finally {
@@ -430,8 +462,9 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                           <p className="mt-1 text-xs text-slate-500">{formatSectionSchedule(section.schedule)}</p>
                         </div>
                         <div className="text-right text-xs text-slate-500">
-                          <p>Capacity</p>
-                          <p className="mt-1 font-semibold text-slate-900">{section.capacity}</p>
+                          <p>Availability</p>
+                          <p className="mt-1 font-semibold text-slate-900">{renderSectionAvailability(section)}</p>
+                          <p className="mt-1 text-[11px] text-slate-500">{renderSectionCapacityMeta(section)}</p>
                         </div>
                       </div>
                       <div className="mt-3 grid grid-cols-3 gap-2">
@@ -488,8 +521,9 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                                 <p className="mt-1 text-xs text-slate-500">{formatSectionSchedule(section.schedule)}</p>
                               </div>
                               <div className="text-right text-xs text-slate-500">
-                                <p>Capacity</p>
-                                <p className="mt-1 font-semibold text-slate-900">{section.capacity}</p>
+                                <p>Availability</p>
+                                <p className="mt-1 font-semibold text-slate-900">{renderSectionAvailability(section)}</p>
+                                <p className="mt-1 text-[11px] text-slate-500">{renderSectionCapacityMeta(section)}</p>
                               </div>
                             </div>
                             <div className="mt-3 grid grid-cols-3 gap-2">

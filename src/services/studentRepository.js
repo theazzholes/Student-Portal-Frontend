@@ -1,6 +1,31 @@
 const PROD_API_BASE_URL = 'https://azzhfunctionapp-h6apc3f6eyf7eagh.northcentralus-01.azurewebsites.net/api'
 const TOKEN_STORAGE_KEY = 'student-portal-token'
 
+/**
+ * @typedef {'Enrolled' | 'Waitlisted'} EnrollmentStatus
+ */
+
+/**
+ * @typedef {Object} ClassSection
+ * @property {string | number} sectionId
+ * @property {Array<{day?: string, startTime?: string, endTime?: string, location?: string}>} [schedule]
+ * @property {string} [instructorName]
+ * @property {number | null} capacity
+ * @property {number | null} enrolledCount
+ * @property {number} waitlistedCount
+ * @property {number | null} availableSeats
+ * @property {boolean} isFull
+ * @property {string} availabilityLabel
+ */
+
+/**
+ * @typedef {Object} EnrollmentResponse
+ * @property {'enroll' | 'unenroll'} action
+ * @property {string} code
+ * @property {string | number} sectionId
+ * @property {EnrollmentStatus} enrollmentStatus
+ */
+
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== '')
 }
@@ -66,35 +91,194 @@ function buildScheduleMap(entries = []) {
   }, new Map())
 }
 
-function toDashboardCourse(classItem, scheduleMap) {
+function buildCatalogMap(classes = []) {
+  return classes.reduce((map, classItem) => {
+    map.set(String(classItem.classId), classItem)
+    return map
+  }, new Map())
+}
+
+function toNumberOrNull(value) {
+  const normalized = Number(value)
+  return Number.isFinite(normalized) ? normalized : null
+}
+
+function parseCapacityString(value) {
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const match = value.match(/(\d+)\s*\/\s*(\d+)/)
+  if (!match) {
+    return null
+  }
+
+  return {
+    enrolled: Number(match[1]),
+    max: Number(match[2]),
+  }
+}
+
+export function normalizeEnrollmentStatus(status) {
+  const normalized = String(status ?? '').trim().toLowerCase()
+
+  if (normalized.includes('waitlist')) {
+    return 'Waitlisted'
+  }
+
+  if (normalized.includes('enroll')) {
+    return 'Enrolled'
+  }
+
+  return status ?? 'Unknown'
+}
+
+export function getSectionAvailabilityLabel(section = {}) {
+  const availableSeats = toNumberOrNull(section.availableSeats)
+  const waitlistedCount = toNumberOrNull(section.waitlistedCount) ?? 0
+  const isFull =
+    typeof section.isFull === 'boolean' ? section.isFull : availableSeats !== null ? availableSeats <= 0 : false
+
+  if (isFull || availableSeats === 0) {
+    return waitlistedCount > 0 ? `Full • ${waitlistedCount} waitlisted` : 'Full'
+  }
+
+  if (availableSeats !== null) {
+    return `Open: ${availableSeats} seat${availableSeats === 1 ? '' : 's'} left`
+  }
+
+  return 'Availability unavailable'
+}
+
+function normalizeSeatCounts(source = {}) {
+  const parsedStringCapacity =
+    parseCapacityString(source.capacityLabel) ??
+    parseCapacityString(source.capacityDisplay) ??
+    parseCapacityString(source.capacity)
+
+  const capacity =
+    toNumberOrNull(source.capacity) ??
+    toNumberOrNull(source.maxCapacity) ??
+    toNumberOrNull(source.capacityMax) ??
+    toNumberOrNull(source.max) ??
+    toNumberOrNull(source.totalSeats) ??
+    parsedStringCapacity?.max ??
+    null
+
+  const enrolledCount =
+    toNumberOrNull(source.enrolledCount) ??
+    toNumberOrNull(source.enrollmentCount) ??
+    toNumberOrNull(source.currentEnrollment) ??
+    toNumberOrNull(source.capacityEnrolled) ??
+    toNumberOrNull(source.takenSeats) ??
+    toNumberOrNull(source.enrolled) ??
+    parsedStringCapacity?.enrolled ??
+    null
+
+  const waitlistedCount =
+    toNumberOrNull(source.waitlistedCount) ??
+    toNumberOrNull(source.waitlistCount) ??
+    toNumberOrNull(source.waitlisted) ??
+    0
+
+  const availableSeats =
+    toNumberOrNull(source.availableSeats) ??
+    (capacity !== null && enrolledCount !== null ? Math.max(capacity - enrolledCount, 0) : null)
+
+  const isFull =
+    typeof source.isFull === 'boolean'
+      ? source.isFull
+      : availableSeats !== null
+        ? availableSeats <= 0
+        : capacity !== null && enrolledCount !== null
+          ? enrolledCount >= capacity
+          : false
+
+  return {
+    capacity,
+    enrolledCount,
+    waitlistedCount,
+    availableSeats,
+    isFull,
+  }
+}
+
+function normalizeSection(section = {}) {
+  const normalizedSeats = normalizeSeatCounts(section)
+
+  return {
+    ...section,
+    ...normalizedSeats,
+    availabilityLabel: getSectionAvailabilityLabel(normalizedSeats),
+  }
+}
+
+function resolveSectionData(classItem) {
+  const sectionLikeSources = [
+    classItem,
+    classItem.section,
+    ...(Array.isArray(classItem.sections) ? classItem.sections : []),
+  ].filter(Boolean)
+
+  for (const source of sectionLikeSources) {
+    const normalizedSection = normalizeSection(source)
+    if (
+      normalizedSection.capacity !== null ||
+      normalizedSection.enrolledCount !== null ||
+      normalizedSection.availableSeats !== null
+    ) {
+      return normalizedSection
+    }
+  }
+
+  return normalizeSection({})
+}
+
+function resolveDashboardSection(classItem, catalogMap) {
+  const catalogClass = catalogMap.get(String(classItem.classId))
+  if (!catalogClass) {
+    return null
+  }
+
+  const sections = Array.isArray(catalogClass.sections) ? catalogClass.sections : []
+  return sections.find((section) => String(section.sectionId) === String(classItem.sectionId)) ?? null
+}
+
+function toDashboardCourse(classItem, scheduleMap, catalogMap = new Map()) {
   const sectionId = String(classItem.sectionId)
-  const schedule = scheduleMap.get(sectionId) ?? classItem.schedule ?? []
+  const matchedSection = resolveDashboardSection(classItem, catalogMap)
+  const schedule = scheduleMap.get(sectionId) ?? matchedSection?.schedule ?? classItem.schedule ?? []
+  const sectionData = resolveSectionData(matchedSection ?? classItem)
 
   return {
     id: sectionId,
     classId: classItem.classId,
     sectionId: classItem.sectionId,
-    courseCode: classItem.code,
-    className: classItem.title,
-    title: classItem.title,
-    instructor: classItem.instructorName,
+    courseCode: firstDefined(classItem.code, matchedSection?.code, catalogMap.get(String(classItem.classId))?.code),
+    className: firstDefined(classItem.title, catalogMap.get(String(classItem.classId))?.title),
+    title: firstDefined(classItem.title, catalogMap.get(String(classItem.classId))?.title),
+    instructor: firstDefined(classItem.instructorName, matchedSection?.instructorName, 'TBA'),
     credits: classItem.credits,
     daysTimes: formatSchedule(schedule),
     location: buildLocationLabel(schedule),
-    enrollmentStatus: classItem.enrollmentStatus,
-    waitlistStatus: classItem.enrollmentStatus,
+    enrollmentStatus: normalizeEnrollmentStatus(classItem.enrollmentStatus),
+    waitlistStatus: normalizeEnrollmentStatus(classItem.enrollmentStatus),
     schedule,
     capacity: {
-      enrolled: 'N/A',
-      max: 'N/A',
+      enrolled: sectionData.enrolledCount ?? 'N/A',
+      max: sectionData.capacity ?? 'N/A',
     },
+    sectionAvailability: sectionData.availabilityLabel,
+    availableSeats: sectionData.availableSeats,
+    waitlistedCount: sectionData.waitlistedCount,
+    isFull: sectionData.isFull,
   }
 }
 
 function toCatalogClass(classItem) {
-  const firstSection = classItem.sections?.[0] ?? null
+  const sections = Array.isArray(classItem.sections) ? classItem.sections.map(normalizeSection) : []
+  const firstSection = sections[0] ?? null
   const schedule = firstSection?.schedule ?? []
-  const maxCapacity = firstSection?.capacity ?? 0
 
   return {
     id: String(classItem.classId),
@@ -108,12 +292,15 @@ function toCatalogClass(classItem) {
     departmentId: classItem.departmentId,
     courseNumber: classItem.courseNumber,
     credits: classItem.credits,
-    sections: classItem.sections ?? [],
+    sections,
     instructor: firstSection?.instructorName ?? 'TBA',
     displayTimes: formatSchedule(schedule),
     location: buildLocationLabel(schedule),
-    availableSeats: maxCapacity,
-    maxCapacity,
+    availableSeats: firstSection?.availableSeats ?? null,
+    maxCapacity: firstSection?.capacity ?? null,
+    waitlistedCount: firstSection?.waitlistedCount ?? 0,
+    isFull: firstSection?.isFull ?? false,
+    sectionAvailability: firstSection?.availabilityLabel ?? 'Availability unavailable',
     schedule,
   }
 }
@@ -231,7 +418,8 @@ export async function getClasses(departmentId) {
 }
 
 export async function getClassById(classId) {
-  return apiFetch(`/classes/${classId}`)
+  const data = await apiFetch(`/classes/${classId}`)
+  return data ? toCatalogClass(data) : data
 }
 
 export async function enrollInClass(sectionId) {
@@ -254,14 +442,18 @@ export async function getInstructors() {
 }
 
 export async function getStudentDashboard() {
-  const [user, classes, scheduleEntries] = await Promise.all([
+  const [user, classes, scheduleEntries, catalog] = await Promise.all([
     getCurrentUser(),
     getCurrentStudentClasses(),
     getCurrentStudentSchedule(),
+    getClasses().catch(() => []),
   ])
 
   const scheduleMap = buildScheduleMap(scheduleEntries)
-  const courses = Array.isArray(classes) ? classes.map((entry) => toDashboardCourse(entry, scheduleMap)) : []
+  const catalogMap = buildCatalogMap(catalog)
+  const courses = Array.isArray(classes)
+    ? classes.map((entry) => toDashboardCourse(entry, scheduleMap, catalogMap))
+    : []
 
   return {
     id: String(firstDefined(user?.studentId, user?.id, '1')),
