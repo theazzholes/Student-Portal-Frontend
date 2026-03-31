@@ -14,7 +14,7 @@ function TopNavbar({ student, activeTab = 'overview', onTabChange }) {
         <div className="flex items-center gap-4">
           <img src={logo} alt="Capgemini logo" className="h-12 w-auto object-contain" />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Student Portal</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-white">Student Portal</p>
           </div>
         </div>
 
