@@ -298,8 +298,9 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
         </div>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-[230px_minmax(0,1fr)_420px]">
-        <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="grid gap-3 xl:grid-cols-[530px_minmax(0,1fr)_420px]">
+        <aside className="space-y-3">
+          <div className="h-fit rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">Filters</h3>
             <button
@@ -345,6 +346,35 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
               })}
             </div>
           </div>
+          </div>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Calendar Preview</p>
+                <h3 className="mt-1 text-lg font-semibold text-slate-900">Current Schedule + Selected Section</h3>
+              </div>
+              {previewSelection && (
+                <button
+                  type="button"
+                  onClick={() => setPreviewSelection(null)}
+                  className="text-xs font-medium text-slate-500 transition-colors hover:text-slate-900"
+                >
+                  Clear Preview
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-sm text-slate-600">
+              Preview a section from either browse mode to see how it fits alongside your current classes before you enroll.
+            </p>
+            <div className="mt-4">
+              <WeeklyCalendar
+                courses={previewCourses}
+                title="Registration Preview"
+                emptyMessage="Choose a section to preview it on the calendar."
+              />
+            </div>
+          </section>
         </aside>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -574,34 +604,6 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                 {mutationError}
               </div>
             )}
-          </section>
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Calendar Preview</p>
-                <h3 className="mt-1 text-lg font-semibold text-slate-900">Current Schedule + Selected Section</h3>
-              </div>
-              {previewSelection && (
-                <button
-                  type="button"
-                  onClick={() => setPreviewSelection(null)}
-                  className="text-xs font-medium text-slate-500 transition-colors hover:text-slate-900"
-                >
-                  Clear Preview
-                </button>
-              )}
-            </div>
-            <p className="mt-2 text-sm text-slate-600">
-              Preview a section from either browse mode to see how it fits alongside your current classes before you enroll.
-            </p>
-            <div className="mt-4">
-              <WeeklyCalendar
-                courses={previewCourses}
-                title="Registration Preview"
-                emptyMessage="Choose a section to preview it on the calendar."
-              />
-            </div>
           </section>
         </div>
       </div>

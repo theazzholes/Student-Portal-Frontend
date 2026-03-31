@@ -63,9 +63,6 @@ function CatalogCard({ catalogClass, isSelected = false, onSelect }) {
         </div>
       </dl>
 
-      <div className={`mt-4 rounded-lg border px-3 py-2 text-center text-xs font-semibold ${isSelected ? 'border-slate-700 bg-slate-800 text-slate-100' : 'border-slate-200 bg-slate-100 text-slate-600'}`}>
-        View class details
-      </div>
     </button>
   )
 }
