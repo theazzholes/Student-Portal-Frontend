@@ -1,6 +1,40 @@
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function toCodeTokens(value) {
+  return String(value ?? '')
+    .toUpperCase()
+    .match(/[A-Z]+|\d+[A-Z]?/g) ?? []
+}
+
+function formatCourseTitle(title, courseCode) {
+  const normalizedTitle = String(title ?? '').trim()
+  if (!normalizedTitle) {
+    return 'Untitled Class'
+  }
+
+  const codeTokens = toCodeTokens(courseCode)
+  if (codeTokens.length === 0) {
+    return normalizedTitle
+  }
+
+  const tokenPattern = codeTokens.map(escapeRegExp).join('\\s*[-_ ]*')
+  const codePrefixPattern = new RegExp(`^${tokenPattern}(?:\\s*[-:|]\\s*|\\s+)`, 'i')
+
+  let strippedTitle = normalizedTitle
+  let previousValue = ''
+  while (strippedTitle !== previousValue) {
+    previousValue = strippedTitle
+    strippedTitle = strippedTitle.replace(codePrefixPattern, '').trim()
+  }
+
+  return strippedTitle || 'Course title unavailable'
+}
+
 function CourseCard({ course, onSelect, isSelected = false }) {
   const courseCode = course.courseCode ?? course.code
-  const className = course.className ?? course.title
+  const className = formatCourseTitle(course.className ?? course.title, courseCode)
   const credits = Number.isFinite(course.credits) ? course.credits : course.credits ?? 'TBA'
   const daysTimes = course.daysTimes ?? 'TBA'
   const statusSource = String(course.enrollmentStatus ?? course.waitlistStatus ?? '').toLowerCase()

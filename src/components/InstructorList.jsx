@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react'
 import { getInstructors } from '../services/studentRepository'
 
+function toDisplaySectionList(sectionIds = []) {
+  if (!Array.isArray(sectionIds) || sectionIds.length === 0) {
+    return 'None'
+  }
+
+  return sectionIds.map((_, index) => String(index + 1)).join(', ')
+}
+
 function InstructorList() {
   const [instructors, setInstructors] = useState([])
   const [loading, setLoading] = useState(true)
@@ -57,7 +65,8 @@ function InstructorList() {
               <ul className="mt-2 space-y-1 text-sm text-slate-700">
                 {instructor.courses.map((course) => (
                   <li key={`${instructor.instructorId}-${course.classId}`}>
-                    <span className="font-medium text-slate-900">{course.code}</span> {course.title} | Sections: {course.sectionIds.join(', ')}
+                    <span className="font-medium text-slate-900">{course.code}</span> {course.title} | Sections:{' '}
+                    {toDisplaySectionList(course.sectionIds)}
                   </li>
                 ))}
               </ul>

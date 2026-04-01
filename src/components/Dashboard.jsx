@@ -118,7 +118,11 @@ function Dashboard() {
               </section>
             )}
 
-            {activeTab === 'courses' && <ClassCatalog onEnrollmentChange={loadDashboard} currentCourses={courses} />}
+            {activeTab === 'courses' && (
+              <section className="h-[calc(100dvh-8.5rem)] min-h-0">
+                <ClassCatalog onEnrollmentChange={loadDashboard} currentCourses={courses} />
+              </section>
+            )}
 
             {activeTab === 'grades' && (
               <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
