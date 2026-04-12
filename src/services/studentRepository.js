@@ -1,5 +1,6 @@
 const PROD_API_BASE_URL = 'https://azzhfunctionapp-h6apc3f6eyf7eagh.northcentralus-01.azurewebsites.net/api'
 const TOKEN_STORAGE_KEY = 'student-portal-token'
+const AUTH_PROFILE_STORAGE_KEY = 'student-portal-auth-profile'
 
 /**
  * @typedef {'Enrolled' | 'Waitlisted'} EnrollmentStatus
@@ -313,15 +314,94 @@ function getToken() {
   return window.localStorage.getItem(TOKEN_STORAGE_KEY)
 }
 
+function getStoredAuthProfile() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const rawProfile = window.localStorage.getItem(AUTH_PROFILE_STORAGE_KEY)
+  if (!rawProfile) {
+    return null
+  }
+
+  try {
+    return JSON.parse(rawProfile)
+  } catch {
+    return null
+  }
+}
+
 function setToken(token) {
   if (typeof window !== 'undefined') {
     window.localStorage.setItem(TOKEN_STORAGE_KEY, token)
   }
 }
 
+function setAuthProfile(profile) {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(AUTH_PROFILE_STORAGE_KEY, JSON.stringify(profile))
+  }
+}
+
+function decodeJwtPayload(token) {
+  if (!token || typeof window === 'undefined') {
+    return null
+  }
+
+  const segments = String(token).split('.')
+  if (segments.length < 2) {
+    return null
+  }
+
+  try {
+    const normalized = segments[1].replace(/-/g, '+').replace(/_/g, '/')
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
+    const decoded = window.atob(padded)
+    return JSON.parse(decoded)
+  } catch {
+    return null
+  }
+}
+
+function getAuthIdentity() {
+  const token = getToken()
+  const claims = decodeJwtPayload(token)
+  const storedProfile = getStoredAuthProfile()
+
+  return {
+    name: firstDefined(
+      storedProfile?.name,
+      claims?.name,
+      claims?.unique_name,
+      claims?.preferred_username,
+      claims?.given_name,
+    ),
+    email: firstDefined(storedProfile?.email, claims?.email, claims?.upn, claims?.preferred_username),
+  }
+}
+
+function resolveDisplayName(user, fallbackLabel) {
+  const authIdentity = getAuthIdentity()
+  const apiName = String(user?.name ?? '').trim()
+  const looksLikeHardcodedDemoUser = apiName === '' || /^demo user$/i.test(apiName)
+
+  return firstDefined(
+    looksLikeHardcodedDemoUser ? null : apiName,
+    authIdentity.name,
+    apiName,
+    fallbackLabel,
+  )
+}
+
+function resolveDisplayEmail(user) {
+  const authIdentity = getAuthIdentity()
+  return firstDefined(authIdentity.email, user?.email, '')
+}
+
 export function clearToken() {
   if (typeof window !== 'undefined') {
     window.localStorage.removeItem(TOKEN_STORAGE_KEY)
+    window.localStorage.removeItem(AUTH_PROFILE_STORAGE_KEY)
   }
 }
 
@@ -381,6 +461,10 @@ export async function signup(payload) {
 
   if (data?.accessToken) {
     setToken(data.accessToken)
+    setAuthProfile({
+      name: payload?.name ?? '',
+      email: payload?.email ?? '',
+    })
   }
 
   return data
@@ -394,6 +478,9 @@ export async function login(payload) {
 
   if (data?.accessToken) {
     setToken(data.accessToken)
+    setAuthProfile({
+      email: payload?.email ?? '',
+    })
   }
 
   return data
@@ -441,6 +528,49 @@ export async function getInstructors() {
   return Array.isArray(data) ? data : []
 }
 
+export async function getCurrentTeacherClasses() {
+  const data = await apiFetch('/teachers/current/classes')
+  return Array.isArray(data) ? data : []
+}
+
+export async function getTeacherClassStudents(sectionId) {
+  if (!sectionId) {
+    return null
+  }
+
+  return apiFetch(`/teachers/current/classes/${encodeURIComponent(sectionId)}/students`)
+}
+
+export async function teacherEnrollStudent(sectionId, studentId) {
+  return apiFetch(
+    `/teachers/current/classes/${encodeURIComponent(sectionId)}/students/${encodeURIComponent(studentId)}/enroll`,
+    {
+      method: 'POST',
+    },
+  )
+}
+
+export async function teacherUnenrollStudent(sectionId, studentId) {
+  return apiFetch(
+    `/teachers/current/classes/${encodeURIComponent(sectionId)}/students/${encodeURIComponent(studentId)}/enroll`,
+    {
+      method: 'DELETE',
+    },
+  )
+}
+
+export async function getTeacherDashboard() {
+  const [user, classes] = await Promise.all([getCurrentUser(), getCurrentTeacherClasses()])
+
+  return {
+    id: String(firstDefined(user?.instructorId, user?.id, 'teacher')),
+    fullName: resolveDisplayName(user, 'Current Teacher'),
+    email: resolveDisplayEmail(user),
+    instructorId: user?.instructorId ?? null,
+    assignedClasses: classes,
+  }
+}
+
 export async function getStudentDashboard() {
   const [user, classes, scheduleEntries, catalog] = await Promise.all([
     getCurrentUser(),
@@ -457,8 +587,9 @@ export async function getStudentDashboard() {
 
   return {
     id: String(firstDefined(user?.studentId, user?.id, '1')),
-    fullName: user?.name ?? 'Current Student',
-    email: user?.email ?? '',
+    fullName: resolveDisplayName(user, 'Current Student'),
+    email: resolveDisplayEmail(user),
+    instructorId: user?.instructorId ?? null,
     program: 'Student',
     term: 'Current Term',
     gpa: 0,
