@@ -55,6 +55,8 @@ function TeacherDashboard() {
   const [roster, setRoster] = useState(null)
   const [loading, setLoading] = useState(true)
   const [rosterLoading, setRosterLoading] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [rosterRefreshing, setRosterRefreshing] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [rosterError, setRosterError] = useState('')
   const [studentIdInput, setStudentIdInput] = useState(DEFAULT_TEST_STUDENT_ID)
@@ -64,8 +66,12 @@ function TeacherDashboard() {
 
   const assignedClasses = teacher?.assignedClasses ?? []
 
-  const loadTeacherDashboard = useCallback(async () => {
-    setLoading(true)
+  const loadTeacherDashboard = useCallback(async ({ background = false } = {}) => {
+    if (background) {
+      setRefreshing(true)
+    } else {
+      setLoading(true)
+    }
     setErrorMessage('')
 
     try {
@@ -75,17 +81,25 @@ function TeacherDashboard() {
     } catch (error) {
       setErrorMessage(error.message)
     } finally {
-      setLoading(false)
+      if (background) {
+        setRefreshing(false)
+      } else {
+        setLoading(false)
+      }
     }
   }, [])
 
-  const loadRoster = useCallback(async (sectionId) => {
+  const loadRoster = useCallback(async (sectionId, { background = false } = {}) => {
     if (!sectionId) {
       setRoster(null)
       return
     }
 
-    setRosterLoading(true)
+    if (background) {
+      setRosterRefreshing(true)
+    } else {
+      setRosterLoading(true)
+    }
     setRosterError('')
 
     try {
@@ -95,7 +109,11 @@ function TeacherDashboard() {
       setRosterError(error.message)
       setRoster(null)
     } finally {
-      setRosterLoading(false)
+      if (background) {
+        setRosterRefreshing(false)
+      } else {
+        setRosterLoading(false)
+      }
     }
   }, [])
 
@@ -109,9 +127,9 @@ function TeacherDashboard() {
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      loadTeacherDashboard()
+      loadTeacherDashboard({ background: true })
       if (selectedSectionId) {
-        loadRoster(selectedSectionId)
+        loadRoster(selectedSectionId, { background: true })
       }
     }, AUTO_REFRESH_INTERVAL_MS)
 
@@ -219,10 +237,10 @@ function TeacherDashboard() {
             </div>
             <button
               type="button"
-              onClick={loadTeacherDashboard}
+              onClick={() => loadTeacherDashboard({ background: true })}
               className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900"
             >
-              Refresh
+              {refreshing ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
 
@@ -333,11 +351,11 @@ function TeacherDashboard() {
               </div>
               <button
                 type="button"
-                onClick={() => loadRoster(selectedSectionId)}
-                disabled={!selectedSectionId || rosterLoading}
+                onClick={() => loadRoster(selectedSectionId, { background: true })}
+                disabled={!selectedSectionId || rosterLoading || rosterRefreshing}
                 className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300"
               >
-                {rosterLoading ? 'Refreshing...' : 'Refresh Roster'}
+                {rosterLoading || rosterRefreshing ? 'Refreshing...' : 'Refresh Roster'}
               </button>
             </div>
 
@@ -386,9 +404,15 @@ function TeacherDashboard() {
               )}
             </div>
 
-            {rosterLoading && (
+            {rosterLoading && !roster && (
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 Loading roster...
+              </div>
+            )}
+
+            {rosterRefreshing && roster && (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                Refreshing roster...
               </div>
             )}
 
