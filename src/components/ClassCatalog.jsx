@@ -567,7 +567,7 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
 
       <div className="mt-4">
         <p className="text-xs font-bold uppercase tracking-wide text-slate-700">Departments</p>
-        <div className="mt-2 max-h-56 space-y-1.5 overflow-auto pr-1">
+        <div className="mt-2 space-y-1.5">
           {departmentOptions.map((department) => {
             const checked = selectedDepartments.includes(department)
             return (
