@@ -4,6 +4,7 @@ import CatalogCard from './CatalogCard'
 import WeeklyCalendar from './WeeklyCalendar'
 
 const PAGE_SIZE = 12
+const TOAST_AUTO_DISMISS_MS = 3500
 
 function formatTime(time) {
   const [hoursRaw = '0', minutesRaw = '00'] = String(time).split(':')
@@ -60,6 +61,42 @@ function formatCourseTitle(title, courseCode) {
 
 function toActionLabel(action) {
   return action === 'enroll' ? 'Enrollment' : 'Unenrollment'
+}
+
+function toSectionKey(sectionId) {
+  if (sectionId === undefined || sectionId === null) {
+    return ''
+  }
+
+  return String(sectionId).trim()
+}
+
+function isSamePreviewSelection(previewSelection, source, section) {
+  if (!previewSelection || !source || !section) {
+    return false
+  }
+
+  return (
+    toSectionKey(previewSelection.source?.classId) === toSectionKey(source.classId) &&
+    toSectionKey(previewSelection.section?.sectionId) === toSectionKey(section.sectionId)
+  )
+}
+
+function canUnenrollFromStatus(status) {
+  const normalized = String(status ?? '').trim().toLowerCase()
+  if (!normalized) {
+    return false
+  }
+
+  if (normalized.includes('waitlist')) {
+    return true
+  }
+
+  if (normalized.includes('unenroll') || normalized.includes('not enrolled')) {
+    return false
+  }
+
+  return normalized.includes('enrolled')
 }
 
 function toSuccessMessage(response, displaySectionNumber) {
@@ -206,8 +243,7 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
   const [selectedDepartments, setSelectedDepartments] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  const [mutationMessage, setMutationMessage] = useState('')
-  const [mutationError, setMutationError] = useState('')
+  const [toast, setToast] = useState(null)
   const [mutatingSectionId, setMutatingSectionId] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [mobilePanel, setMobilePanel] = useState('catalog')
@@ -413,6 +449,34 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
     return [...currentCourses, toSectionPreviewCourse(previewSelection.source, previewSelection.section)]
   }, [currentCourses, previewSelection])
 
+  const enrollmentStatusBySection = useMemo(() => {
+    const lookup = new Map()
+
+    currentCourses.forEach((course) => {
+      const key = toSectionKey(course?.sectionId)
+      if (!key) {
+        return
+      }
+
+      const status = course?.enrollmentStatus ?? course?.waitlistStatus ?? ''
+      lookup.set(key, status)
+    })
+
+    return lookup
+  }, [currentCourses])
+
+  useEffect(() => {
+    if (!toast) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setToast(null)
+    }, TOAST_AUTO_DISMISS_MS)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [toast])
+
   const handleDepartmentToggle = (department) => {
     setSelectedDepartments((current) =>
       current.includes(department) ? current.filter((item) => item !== department) : [...current, department],
@@ -425,16 +489,16 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
   }
 
   const handleEnrollmentAction = async (action, sectionId, displaySectionNumber) => {
-    setMutatingSectionId(sectionId)
-    setMutationError('')
-    setMutationMessage('')
+    const sectionKey = toSectionKey(sectionId)
+    setMutatingSectionId(sectionKey)
+    setToast(null)
 
     try {
       const response = action === 'enroll' ? await enrollInClass(sectionId) : await dropClass(sectionId)
-      setMutationMessage(toSuccessMessage(response, displaySectionNumber))
+      setToast({ type: 'success', message: toSuccessMessage(response, displaySectionNumber) })
       await Promise.all([loadRegistrationData(), onEnrollmentChange?.()])
     } catch (error) {
-      setMutationError(toFailureMessage(action, error))
+      setToast({ type: 'error', message: toFailureMessage(action, error) })
     } finally {
       setMutatingSectionId(null)
     }
@@ -453,6 +517,10 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
   const handlePageChange = (nextPage) => {
     const boundedPage = Math.max(1, Math.min(totalPages, nextPage))
     setCurrentPage(boundedPage)
+  }
+
+  const handlePreviewToggle = (source, section) => {
+    setPreviewSelection((current) => (isSamePreviewSelection(current, source, section) ? null : { source, section }))
   }
 
   const toggleCourseSection = (sectionKey) => {
@@ -704,6 +772,16 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
               const sectionKey = `${selectedDetail.classId}-${section.sectionId}`
               const expanded = expandedCourseSections.includes(sectionKey)
               const displaySectionNumber = sectionIndex + 1
+              const sectionAction = canUnenrollFromStatus(enrollmentStatusBySection.get(toSectionKey(section.sectionId)))
+                ? 'unenroll'
+                : 'enroll'
+              const isMutatingSection = mutatingSectionId === toSectionKey(section.sectionId)
+              const isPreviewed = isSamePreviewSelection(previewSelection, selectedDetail, section)
+              const actionButtonLabel = sectionAction === 'enroll' ? 'Enroll' : 'Unenroll'
+              const actionButtonClasses =
+                sectionAction === 'enroll'
+                  ? 'rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400'
+                  : 'rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-400'
 
               return (
                 <article key={section.sectionId} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
@@ -726,29 +804,25 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                     <div className="mt-3 border-t border-slate-200 pt-3">
                       <p className="text-sm text-slate-600">{section.instructorName}</p>
                       <p className="mt-1 text-xs text-slate-500">{renderSectionCapacityMeta(section)}</p>
-                      <div className="mt-3 grid grid-cols-3 gap-2">
+                      <div className="mt-3 grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setPreviewSelection({ source: selectedDetail, section })}
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900"
+                          onClick={() => handlePreviewToggle(selectedDetail, section)}
+                          className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                            isPreviewed
+                              ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800'
+                              : 'border-slate-300 text-slate-700 hover:border-slate-900 hover:text-slate-900'
+                          }`}
                         >
-                          Preview
+                          {isPreviewed ? 'Remove Preview' : 'Preview'}
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleEnrollmentAction('enroll', section.sectionId, displaySectionNumber)}
-                          disabled={mutatingSectionId === section.sectionId}
-                          className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                          onClick={() => handleEnrollmentAction(sectionAction, section.sectionId, displaySectionNumber)}
+                          disabled={isMutatingSection}
+                          className={actionButtonClasses}
                         >
-                          {mutatingSectionId === section.sectionId ? 'Submitting...' : 'Enroll'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleEnrollmentAction('unenroll', section.sectionId, displaySectionNumber)}
-                          disabled={mutatingSectionId === section.sectionId}
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-400"
-                        >
-                          {mutatingSectionId === section.sectionId ? 'Submitting...' : 'Unenroll'}
+                          {isMutatingSection ? 'Submitting...' : actionButtonLabel}
                         </button>
                       </div>
                     </div>
@@ -802,6 +876,18 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                     <div className="mt-3 space-y-3 border-t border-slate-200 pt-3">
                       {course.sections.map((section, sectionIndex) => {
                         const displaySectionNumber = sectionIndex + 1
+                        const sectionAction = canUnenrollFromStatus(
+                          enrollmentStatusBySection.get(toSectionKey(section.sectionId)),
+                        )
+                          ? 'unenroll'
+                          : 'enroll'
+                        const isMutatingSection = mutatingSectionId === toSectionKey(section.sectionId)
+                        const isPreviewed = isSamePreviewSelection(previewSelection, course, section)
+                        const actionButtonLabel = sectionAction === 'enroll' ? 'Enroll' : 'Unenroll'
+                        const actionButtonClasses =
+                          sectionAction === 'enroll'
+                            ? 'rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400'
+                            : 'rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-400'
 
                         return (
                         <div key={section.sectionId} className="rounded-lg border border-slate-200 bg-white p-3">
@@ -816,29 +902,25 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                               <p className="mt-1 text-[11px] text-slate-500">{renderSectionCapacityMeta(section)}</p>
                             </div>
                           </div>
-                          <div className="mt-3 grid grid-cols-3 gap-2">
+                          <div className="mt-3 grid grid-cols-2 gap-2">
                             <button
                               type="button"
-                              onClick={() => setPreviewSelection({ source: course, section })}
-                              className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900"
+                              onClick={() => handlePreviewToggle(course, section)}
+                              className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                                isPreviewed
+                                  ? 'border-slate-900 bg-slate-900 text-white hover:bg-slate-800'
+                                  : 'border-slate-300 text-slate-700 hover:border-slate-900 hover:text-slate-900'
+                              }`}
                             >
-                              Preview
+                              {isPreviewed ? 'Remove Preview' : 'Preview'}
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleEnrollmentAction('enroll', section.sectionId, displaySectionNumber)}
-                              disabled={mutatingSectionId === section.sectionId}
-                              className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                              onClick={() => handleEnrollmentAction(sectionAction, section.sectionId, displaySectionNumber)}
+                              disabled={isMutatingSection}
+                              className={actionButtonClasses}
                             >
-                              {mutatingSectionId === section.sectionId ? 'Submitting...' : 'Enroll'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleEnrollmentAction('unenroll', section.sectionId, displaySectionNumber)}
-                              disabled={mutatingSectionId === section.sectionId}
-                              className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-slate-900 hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-400"
-                            >
-                              {mutatingSectionId === section.sectionId ? 'Submitting...' : 'Unenroll'}
+                              {isMutatingSection ? 'Submitting...' : actionButtonLabel}
                             </button>
                           </div>
                         </div>
@@ -856,104 +938,112 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
       {!selectedDetail && !loading && !errorMessage && (
         <p className="text-sm text-slate-600">Select a course or instructor to review available sections.</p>
       )}
-
-      {mutationMessage && (
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-          {mutationMessage}
-        </div>
-      )}
-      {mutationError && (
-        <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
-          {mutationError}
-        </div>
-      )}
     </section>
   )
 
   return (
-    <section className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
-      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Registration</h2>
-            <p className="text-sm text-slate-600">
-              Switch between course-based and instructor-based registration, preview sections on your calendar, and
-              enroll directly from either view.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setBrowseMode('courses')}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                browseMode === 'courses' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
-              }`}
-            >
-              Browse by Course
-            </button>
-            <button
-              type="button"
-              onClick={() => setBrowseMode('instructors')}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                browseMode === 'instructors' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
-              }`}
-            >
-              Browse by Instructor
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="xl:hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { id: 'catalog', label: 'Catalog' },
-            { id: 'details', label: 'Details' },
-            { id: 'calendar', label: 'Calendar' },
-          ].map((tab) => {
-            const isActive = mobilePanel === tab.id
-            return (
+    <>
+      <section className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Registration</h2>
+              <p className="text-sm text-slate-600">
+                Switch between course-based and instructor-based registration, preview sections on your calendar, and
+                enroll directly from either view.
+              </p>
+            </div>
+            <div className="flex gap-2">
               <button
-                key={tab.id}
                 type="button"
-                onClick={() => setMobilePanel(tab.id)}
-                className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
-                  isActive
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
+                onClick={() => setBrowseMode('courses')}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                  browseMode === 'courses' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
                 }`}
               >
-                {tab.label}
+                Browse by Course
               </button>
-            )
-          })}
-        </div>
-      </div>
-
-      <div className="hidden min-h-0 flex-1 gap-3 xl:grid xl:grid-cols-[530px_minmax(0,1fr)_420px]">
-        <aside className="min-h-0 space-y-3 overflow-y-auto pr-1">
-          {renderFiltersCard('registration-search-desktop')}
-          {renderCalendarCard()}
-        </aside>
-
-        <div className="min-h-0 overflow-y-auto pr-1">{renderCatalogPanel()}</div>
-
-        <div className="min-h-0 overflow-y-auto pr-1">{renderDetailPanel()}</div>
-      </div>
-
-      <div className="xl:hidden min-h-0 flex-1">
-        {mobilePanel === 'catalog' && (
-          <div className="h-full space-y-3 overflow-y-auto pr-1">
-            {renderFiltersCard('registration-search-mobile')}
-            {renderCatalogPanel()}
+              <button
+                type="button"
+                onClick={() => setBrowseMode('instructors')}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                  browseMode === 'instructors' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                Browse by Instructor
+              </button>
+            </div>
           </div>
-        )}
+        </div>
 
-        {mobilePanel === 'details' && <div className="h-full overflow-y-auto pr-1">{renderDetailPanel(true)}</div>}
+        <div className="xl:hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: 'catalog', label: 'Catalog' },
+              { id: 'details', label: 'Details' },
+              { id: 'calendar', label: 'Calendar' },
+            ].map((tab) => {
+              const isActive = mobilePanel === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setMobilePanel(tab.id)}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${
+                    isActive
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
-        {mobilePanel === 'calendar' && <div className="h-full overflow-y-auto pr-1">{renderCalendarCard()}</div>}
-      </div>
-    </section>
+        <div className="hidden min-h-0 flex-1 gap-3 xl:grid xl:grid-cols-[530px_minmax(0,1fr)_420px]">
+          <aside className="min-h-0 space-y-3 overflow-y-auto pr-1">
+            {renderFiltersCard('registration-search-desktop')}
+            {renderCalendarCard()}
+          </aside>
+
+          <div className="min-h-0 overflow-y-auto pr-1">{renderCatalogPanel()}</div>
+
+          <div className="min-h-0 overflow-y-auto pr-1">{renderDetailPanel()}</div>
+        </div>
+
+        <div className="xl:hidden min-h-0 flex-1">
+          {mobilePanel === 'catalog' && (
+            <div className="h-full space-y-3 overflow-y-auto pr-1">
+              {renderFiltersCard('registration-search-mobile')}
+              {renderCatalogPanel()}
+            </div>
+          )}
+
+          {mobilePanel === 'details' && <div className="h-full overflow-y-auto pr-1">{renderDetailPanel(true)}</div>}
+
+          {mobilePanel === 'calendar' && <div className="h-full overflow-y-auto pr-1">{renderCalendarCard()}</div>}
+        </div>
+      </section>
+
+      {toast && (
+        <div className="pointer-events-none fixed right-4 top-24 z-50 w-[min(22rem,calc(100vw-2rem))]">
+          <div
+            role={toast.type === 'error' ? 'alert' : 'status'}
+            aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+            aria-atomic="true"
+            className={`rounded-xl border p-3 text-sm shadow-lg ${
+              toast.type === 'error'
+                ? 'border-rose-200 bg-rose-50 text-rose-800'
+                : 'border-emerald-200 bg-emerald-50 text-emerald-800'
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
