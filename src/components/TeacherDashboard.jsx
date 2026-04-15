@@ -272,6 +272,9 @@ function TeacherDashboard() {
                   </div>
                   <p className={`mt-2 text-xs ${isSelected ? 'text-slate-200' : 'text-slate-600'}`}>{item.daysTimes}</p>
                   <p className={`mt-1 text-xs ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>{item.location}</p>
+                  <p className={`mt-1 break-all text-[11px] ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                    Section ID: {item.sectionId}
+                  </p>
                   <div className="mt-3">
                     <div className="flex items-center justify-between gap-3">
                       <p className={`text-[11px] font-medium ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
@@ -320,6 +323,9 @@ function TeacherDashboard() {
                 <p className="mt-1 text-sm text-slate-600">
                   {selectedClass ? `${selectedClass.daysTimes} | ${selectedClass.location}` : 'Choose a teacher-owned section to manage its roster.'}
                 </p>
+                {selectedClass && (
+                  <p className="mt-1 break-all text-xs text-slate-500">Section ID: {selectedClass.sectionId}</p>
+                )}
               </div>
 
               {selectedClass && (
