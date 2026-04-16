@@ -6,6 +6,7 @@ import WeeklyCalendar from './WeeklyCalendar'
 import ClassCatalog from './ClassCatalog'
 import { getStudentDashboard } from '../services/studentRepository'
 import TeacherDashboard from './TeacherDashboard'
+import ScheduleAssistant from './ScheduleAssistant'
 
 function EnrollmentBadge({ status }) {
   const isWaitlisted = String(status ?? '').toLowerCase().includes('waitlist')
@@ -165,9 +166,16 @@ function Dashboard() {
                 )}
 
                 {activeTab === 'schedule' && (
-                  <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <h3 className="mb-6 text-xl font-semibold">Weekly Schedule</h3>
-                    <WeeklyCalendar courses={courses} />
+                  <section className="space-y-4">
+                    <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+                      <h3 className="text-xl font-semibold text-slate-900">Schedule Planning</h3>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Review your current weekly schedule and ask the AI assistant to generate schedule options that
+                        match your preferences.
+                      </p>
+                    </div>
+
+                    <ScheduleAssistant currentCourses={courses} />
                   </section>
                 )}
               </>

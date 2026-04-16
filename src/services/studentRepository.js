@@ -498,6 +498,35 @@ export async function getCurrentStudentSchedule() {
   return apiFetch('/students/current/schedule')
 }
 
+export async function requestScheduleOptions(message, optionCount = 3) {
+  return apiFetch('/frontend/schedule-request', {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+      optionCount,
+    }),
+  })
+}
+
+export async function requestScheduleAlternatives(requestId, message, optionCount = 3) {
+  return apiFetch(`/students/current/schedule-requests/${encodeURIComponent(requestId)}/alternatives`, {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+      optionCount,
+    }),
+  })
+}
+
+export async function acceptScheduleOption(requestId, scheduleOptionId) {
+  return apiFetch(`/students/current/schedule-requests/${encodeURIComponent(requestId)}/accept`, {
+    method: 'POST',
+    body: JSON.stringify({
+      scheduleOptionId,
+    }),
+  })
+}
+
 export async function getClasses(departmentId) {
   const query = departmentId ? `?departmentId=${encodeURIComponent(departmentId)}` : ''
   const data = await apiFetch(`/classes${query}`)
