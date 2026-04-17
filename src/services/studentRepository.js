@@ -498,13 +498,29 @@ export async function getCurrentStudentSchedule() {
   return apiFetch('/students/current/schedule')
 }
 
-export async function requestScheduleOptions(message, optionCount = 3) {
+export async function saveSchedulePreferences(message, generateSchedules = false) {
   return apiFetch('/frontend/schedule-request', {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+      generateSchedules,
+    }),
+  })
+}
+
+export async function generateScheduleOptions(message = '', optionCount = 3) {
+  return apiFetch('/frontend/schedule-generate', {
     method: 'POST',
     body: JSON.stringify({
       message,
       optionCount,
     }),
+  })
+}
+
+export async function clearSchedulePreferences() {
+  return apiFetch('/students/current/schedule-preferences', {
+    method: 'DELETE',
   })
 }
 
