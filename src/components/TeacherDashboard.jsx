@@ -64,7 +64,11 @@ function TeacherDashboard() {
   const [actionError, setActionError] = useState('')
   const [mutatingKey, setMutatingKey] = useState(null)
 
-  const assignedClasses = teacher?.assignedClasses ?? []
+  const assignedClasses = useMemo(() => teacher?.assignedClasses ?? [], [teacher?.assignedClasses])
+  const ownedSectionIds = useMemo(
+    () => new Set(assignedClasses.map((item) => String(item.sectionId))),
+    [assignedClasses],
+  )
 
   const loadTeacherDashboard = useCallback(async ({ background = false } = {}) => {
     if (background) {
@@ -77,7 +81,14 @@ function TeacherDashboard() {
     try {
       const data = await getTeacherDashboard()
       setTeacher(data)
-      setSelectedSectionId((current) => current ?? data.assignedClasses[0]?.sectionId ?? null)
+      setSelectedSectionId((current) => {
+        const normalizedCurrent = current ? String(current) : ''
+        if (normalizedCurrent && data.assignedClasses.some((item) => String(item.sectionId) === normalizedCurrent)) {
+          return normalizedCurrent
+        }
+
+        return data.assignedClasses[0]?.sectionId ?? null
+      })
     } catch (error) {
       setErrorMessage(error.message)
     } finally {
@@ -122,19 +133,39 @@ function TeacherDashboard() {
   }, [loadTeacherDashboard])
 
   useEffect(() => {
+    if (!selectedSectionId || !ownedSectionIds.has(String(selectedSectionId))) {
+      setRoster(null)
+      setRosterError('')
+      return
+    }
+
     loadRoster(selectedSectionId)
-  }, [loadRoster, selectedSectionId])
+  }, [loadRoster, ownedSectionIds, selectedSectionId])
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       loadTeacherDashboard({ background: true })
-      if (selectedSectionId) {
+      if (selectedSectionId && ownedSectionIds.has(String(selectedSectionId))) {
         loadRoster(selectedSectionId, { background: true })
       }
     }, AUTO_REFRESH_INTERVAL_MS)
 
     return () => window.clearInterval(intervalId)
-  }, [loadRoster, loadTeacherDashboard, selectedSectionId])
+  }, [loadRoster, loadTeacherDashboard, ownedSectionIds, selectedSectionId])
+
+  useEffect(() => {
+    if (!selectedSectionId) {
+      return
+    }
+
+    if (ownedSectionIds.has(String(selectedSectionId))) {
+      return
+    }
+
+    setSelectedSectionId(assignedClasses[0]?.sectionId ?? null)
+    setRoster(null)
+    setRosterError('')
+  }, [assignedClasses, ownedSectionIds, selectedSectionId])
 
   const selectedClass = useMemo(
     () => (teacher?.assignedClasses ?? []).find((item) => item.sectionId === selectedSectionId) ?? null,
@@ -149,6 +180,12 @@ function TeacherDashboard() {
     const trimmedStudentId = studentIdInput.trim()
     if (!selectedSectionId || !trimmedStudentId) {
       setActionError('Provide a student ID and select a section first.')
+      setActionMessage('')
+      return
+    }
+
+    if (!ownedSectionIds.has(String(selectedSectionId))) {
+      setActionError('ACCESS_DENIED: You can only manage enrollment for your own classes.')
       setActionMessage('')
       return
     }
@@ -173,6 +210,12 @@ function TeacherDashboard() {
       return
     }
 
+    if (!ownedSectionIds.has(String(selectedSectionId))) {
+      setActionError('ACCESS_DENIED: You can only manage enrollment for your own classes.')
+      setActionMessage('')
+      return
+    }
+
     setMutatingKey(`unenroll-${studentId}`)
     setActionError('')
     setActionMessage('')
@@ -192,7 +235,7 @@ function TeacherDashboard() {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-bold text-slate-900">Loading teacher dashboard...</h2>
-        <p className="mt-2 text-slate-600">Fetching assigned sections and teacher roster data from the API.</p>
+        <p className="mt-2 text-slate-600">Fetching your assigned sections and current enrollment details.</p>
       </section>
     )
   }
@@ -211,9 +254,9 @@ function TeacherDashboard() {
       <header className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-600">Teacher Debug View</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-600">Teacher Dashboard</p>
             <h2 className="text-2xl font-bold leading-tight">{teacher?.fullName}</h2>
-            <p className="text-sm text-slate-600">{teacher?.email || 'No email returned by API'}</p>
+            <p className="text-sm text-slate-600">{teacher?.email || 'Email unavailable'}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center">
@@ -233,7 +276,7 @@ function TeacherDashboard() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h3 className="text-base font-semibold text-slate-700">Assigned Classes</h3>
-              <p className="text-sm text-slate-500">Select a section to load its roster.</p>
+              <p className="text-sm text-slate-500">Select a section to review enrollment and manage students.</p>
             </div>
             <button
               type="button"
@@ -267,7 +310,7 @@ function TeacherDashboard() {
                       <h4 className="mt-1 text-sm font-semibold">{item.className}</h4>
                     </div>
                     <span className={`text-xs ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                      {item.enrollmentPercentage}% full
+                      {enrollmentPercentage}% full
                     </span>
                   </div>
                   <p className={`mt-2 text-xs ${isSelected ? 'text-slate-200' : 'text-slate-600'}`}>{item.daysTimes}</p>
@@ -307,7 +350,7 @@ function TeacherDashboard() {
 
           {assignedClasses.length === 0 && (
             <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-700">
-              No teacher-owned sections were returned by the API.
+              No classes are currently assigned to this teacher account.
             </div>
           )}
         </aside>
@@ -316,12 +359,12 @@ function TeacherDashboard() {
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Selected Section</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Selected Class Section</p>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">
                   {selectedClass ? `${selectedClass.courseCode} - ${selectedClass.className}` : 'No section selected'}
                 </h3>
                 <p className="mt-1 text-sm text-slate-600">
-                  {selectedClass ? `${selectedClass.daysTimes} | ${selectedClass.location}` : 'Choose a teacher-owned section to manage its roster.'}
+                  {selectedClass ? `${selectedClass.daysTimes} | ${selectedClass.location}` : 'Choose one of your assigned sections to manage enrollment.'}
                 </p>
                 {selectedClass && (
                   <p className="mt-1 break-all text-xs text-slate-500">Section ID: {selectedClass.sectionId}</p>
@@ -350,9 +393,9 @@ function TeacherDashboard() {
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <h3 className="text-base font-semibold text-slate-700">Temporary Teacher Actions</h3>
+                <h3 className="text-base font-semibold text-slate-700">Enrollment Actions</h3>
                 <p className="text-sm text-slate-500">
-                  Use the seeded debug student ID or paste another student GUID to hit the teacher enroll endpoint.
+                  Add a student to the selected section by entering a valid student ID.
                 </p>
               </div>
               <button
@@ -370,13 +413,13 @@ function TeacherDashboard() {
                 type="text"
                 value={studentIdInput}
                 onChange={(event) => setStudentIdInput(event.target.value)}
-                placeholder="Student GUID"
+                placeholder="Enter student ID"
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-500 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
               <button
                 type="button"
                 onClick={handleTeacherEnroll}
-                disabled={!selectedSectionId || mutatingKey === `enroll-${studentIdInput.trim()}`}
+                disabled={!selectedSectionId || !selectedClass || mutatingKey === `enroll-${studentIdInput.trim()}`}
                 className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {mutatingKey === `enroll-${studentIdInput.trim()}` ? 'Submitting...' : 'Enroll Student'}
@@ -400,7 +443,7 @@ function TeacherDashboard() {
               <div>
                 <h3 className="text-base font-semibold text-slate-700">Section Roster</h3>
                 <p className="text-sm text-slate-500">
-                  This calls `GET /teachers/current/classes/{'{sectionId}'}/students` for the selected section.
+                  View students currently enrolled or waitlisted in the selected section.
                 </p>
               </div>
               {roster && (
