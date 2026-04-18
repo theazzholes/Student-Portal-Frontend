@@ -49,20 +49,40 @@ function Dashboard() {
   const [primedCourseActionId, setPrimedCourseActionId] = useState(null)
   const [overviewToast, setOverviewToast] = useState(null)
 
+  const applyDashboardData = useCallback((data) => {
+    setStudent(data)
+    setSelectedCourseId((current) => {
+      if (!current) {
+        return data.courses[0]?.id ?? null
+      }
+
+      const currentSelectionStillExists = data.courses.some((course) => course.id === current)
+      return currentSelectionStillExists ? current : data.courses[0]?.id ?? null
+    })
+  }, [])
+
   const loadDashboard = useCallback(async () => {
     setLoading(true)
     setErrorMessage('')
 
     try {
       const data = await getStudentDashboard()
-      setStudent(data)
-      setSelectedCourseId((current) => current ?? data.courses[0]?.id ?? null)
+      applyDashboardData(data)
     } catch (error) {
       setErrorMessage(error.message)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [applyDashboardData])
+
+  const refreshDashboardSilently = useCallback(async () => {
+    try {
+      const data = await getStudentDashboard()
+      applyDashboardData(data)
+    } catch {
+      // Keep the current view stable if background refresh fails.
+    }
+  }, [applyDashboardData])
 
   const loadCurrentUser = useCallback(async () => {
     try {
@@ -196,7 +216,7 @@ function Dashboard() {
         setOpenCourseActionId(null)
         setPrimedCourseActionId(null)
 
-        await loadDashboard()
+        await refreshDashboardSilently()
       } catch (error) {
         setOverviewToast({
           type: 'error',
@@ -206,7 +226,7 @@ function Dashboard() {
         setMutatingCourseId(null)
       }
     },
-    [loadDashboard],
+    [refreshDashboardSilently],
   )
 
   return (
@@ -340,7 +360,7 @@ function Dashboard() {
 
             {activeTab === 'courses' && (
               <section className="h-[calc(100dvh-8.5rem)] min-h-0">
-                <ClassCatalog onEnrollmentChange={loadDashboard} currentCourses={courses} />
+                <ClassCatalog onEnrollmentChange={refreshDashboardSilently} currentCourses={courses} />
               </section>
             )}
 

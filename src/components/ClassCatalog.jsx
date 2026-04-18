@@ -99,23 +99,64 @@ function canUnenrollFromStatus(status) {
   return normalized.includes('enrolled')
 }
 
-function toSuccessMessage(response, displaySectionNumber) {
-  const sectionLabel = displaySectionNumber ?? response.sectionId
+function toSuccessMessage(action, response, displaySectionNumber, fallbackCourseCode) {
+  const courseCode = response?.code ?? fallbackCourseCode ?? 'selected class'
+  const sectionLabel = displaySectionNumber ?? response?.sectionId ?? 'selected section'
 
-  if (response.action === 'enroll') {
-    if (response.enrollmentStatus === 'Waitlisted') {
-      return `Added to the waitlist for ${response.code} section ${sectionLabel}.`
+  if (action === 'enroll') {
+    const normalizedStatus = String(response?.enrollmentStatus ?? '').trim().toLowerCase()
+    if (normalizedStatus.includes('waitlist')) {
+      return `Added to the waitlist for ${courseCode} section ${sectionLabel}.`
     }
 
-    return `Enrolled in ${response.code} section ${sectionLabel}.`
+    return `Enrolled in ${courseCode} section ${sectionLabel}.`
   }
 
-  return `Unenrolled from ${response.code} section ${sectionLabel}.`
+  return `Unenrolled from ${courseCode} section ${sectionLabel}.`
 }
 
 function toFailureMessage(action, error) {
   const reason = error?.message?.trim() || 'The request did not complete successfully.'
+
   return `${toActionLabel(action)} failed. ${reason}`
+}
+
+function toApiRejectionMessage(response) {
+  if (!response || typeof response !== 'object') {
+    return ''
+  }
+
+  const message = String(response.message ?? response.error ?? response.title ?? '').trim()
+  const success = response.success
+  const isSuccess = response.isSuccess
+  const status = String(response.status ?? '').trim().toLowerCase()
+  const hasErrorCode = Boolean(response.errorCode)
+  const hasErrors =
+    Array.isArray(response.errors) ? response.errors.length > 0 : typeof response.errors === 'object' && response.errors !== null
+
+  const indicatesFailure =
+    success === false ||
+    isSuccess === false ||
+    status === 'error' ||
+    status === 'failed' ||
+    status === 'rejected' ||
+    status === 'conflict' ||
+    hasErrorCode ||
+    hasErrors
+
+  if (!indicatesFailure) {
+    return ''
+  }
+
+  if (message) {
+    return message
+  }
+
+  if (hasErrorCode) {
+    return String(response.errorCode)
+  }
+
+  return 'The request was rejected by the API.'
 }
 
 function toSectionPreviewCourse(source, section, label = 'Preview') {
@@ -250,35 +291,34 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
   const [expandedCourseSections, setExpandedCourseSections] = useState([])
   const [expandedInstructorCourses, setExpandedInstructorCourses] = useState([])
 
-  const loadRegistrationData = useCallback(async () => {
-    setLoading(true)
-    setErrorMessage('')
+  const loadRegistrationData = useCallback(async (isBackgroundFetch = false) => {
+    if (!isBackgroundFetch) {
+      setLoading(true)
+      setErrorMessage('')
+    }
 
-    const [classData, instructorData] = await Promise.all([getClasses(), getInstructors()])
-    setClasses(classData)
-    setInstructors(instructorData)
-    setSelectedClassId((current) => current ?? classData[0]?.classId ?? null)
-    setSelectedInstructorId((current) => current ?? instructorData[0]?.instructorId ?? null)
+    try {
+      const [classData, instructorData] = await Promise.all([getClasses(), getInstructors()])
+      setClasses(classData)
+      setInstructors(instructorData)
+      setSelectedClassId((current) => current ?? classData[0]?.classId ?? null)
+      setSelectedInstructorId((current) => current ?? instructorData[0]?.instructorId ?? null)
+      return true
+    } catch (error) {
+      if (!isBackgroundFetch) {
+        setErrorMessage(error.message)
+      }
+
+      return false
+    } finally {
+      if (!isBackgroundFetch) {
+        setLoading(false)
+      }
+    }
   }, [])
 
   useEffect(() => {
-    let isMounted = true
-
-    loadRegistrationData()
-      .catch((error) => {
-        if (isMounted) {
-          setErrorMessage(error.message)
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setLoading(false)
-        }
-      })
-
-    return () => {
-      isMounted = false
-    }
+    void loadRegistrationData()
   }, [loadRegistrationData])
 
   const departmentOptions = useMemo(() => {
@@ -411,35 +451,79 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
 
   const selectedDetail = browseMode === 'courses' ? selectedClassDetails : selectedInstructor
 
+  const selectedClassSectionKeys = useMemo(() => {
+    if (!selectedClassDetails) {
+      return []
+    }
+
+    return selectedClassDetails.sections.map(
+      (section) => `${selectedClassDetails.classId}-${section.sectionId}`,
+    )
+  }, [selectedClassDetails])
+
+  const selectedInstructorCourseKeys = useMemo(() => {
+    if (!selectedInstructor) {
+      return []
+    }
+
+    return selectedInstructor.courses.map(
+      (course) => `${selectedInstructor.instructorId}-${course.classId}`,
+    )
+  }, [selectedInstructor])
+
   useEffect(() => {
-    if (browseMode !== 'courses' || !selectedClassDetails) {
+    if (browseMode !== 'courses' || !selectedClassId) {
       setExpandedCourseSections([])
       return
     }
 
-    const defaultSection = selectedClassDetails.sections[0]
-    if (!defaultSection) {
+    if (selectedClassSectionKeys.length === 0) {
       setExpandedCourseSections([])
       return
     }
 
-    setExpandedCourseSections([`${selectedClassDetails.classId}-${defaultSection.sectionId}`])
-  }, [browseMode, selectedClassDetails])
+    setExpandedCourseSections((current) => {
+      const classPrefix = `${selectedClassId}-`
+      const hasExpandedSelectionForCurrentClass = current.some(
+        (key) => key.startsWith(classPrefix) && selectedClassSectionKeys.includes(key),
+      )
+
+      if (hasExpandedSelectionForCurrentClass) {
+        return current
+      }
+
+      const currentWithoutStaleCurrentClassKeys = current.filter((key) => !key.startsWith(classPrefix))
+      return [...currentWithoutStaleCurrentClassKeys, selectedClassSectionKeys[0]]
+    })
+  }, [browseMode, selectedClassId, selectedClassSectionKeys])
 
   useEffect(() => {
-    if (browseMode !== 'instructors' || !selectedInstructor) {
+    if (browseMode !== 'instructors' || !selectedInstructorId) {
       setExpandedInstructorCourses([])
       return
     }
 
-    const firstCourse = selectedInstructor.courses[0]
-    if (!firstCourse) {
+    if (selectedInstructorCourseKeys.length === 0) {
       setExpandedInstructorCourses([])
       return
     }
 
-    setExpandedInstructorCourses([`${selectedInstructor.instructorId}-${firstCourse.classId}`])
-  }, [browseMode, selectedInstructor])
+    setExpandedInstructorCourses((current) => {
+      const instructorPrefix = `${selectedInstructorId}-`
+      const hasExpandedSelectionForCurrentInstructor = current.some(
+        (key) => key.startsWith(instructorPrefix) && selectedInstructorCourseKeys.includes(key),
+      )
+
+      if (hasExpandedSelectionForCurrentInstructor) {
+        return current
+      }
+
+      const currentWithoutStaleCurrentInstructorKeys = current.filter(
+        (key) => !key.startsWith(instructorPrefix),
+      )
+      return [...currentWithoutStaleCurrentInstructorKeys, selectedInstructorCourseKeys[0]]
+    })
+  }, [browseMode, selectedInstructorId, selectedInstructorCourseKeys])
 
   const previewCourses = useMemo(() => {
     if (!previewSelection) {
@@ -488,15 +572,26 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
     setSelectedDepartments([])
   }
 
-  const handleEnrollmentAction = async (action, sectionId, displaySectionNumber) => {
+  const handleEnrollmentAction = async (action, sectionId, displaySectionNumber, courseCode) => {
     const sectionKey = toSectionKey(sectionId)
     setMutatingSectionId(sectionKey)
     setToast(null)
 
     try {
       const response = action === 'enroll' ? await enrollInClass(sectionId) : await dropClass(sectionId)
-      setToast({ type: 'success', message: toSuccessMessage(response, displaySectionNumber) })
-      await Promise.all([loadRegistrationData(), onEnrollmentChange?.()])
+      const rejectionMessage = toApiRejectionMessage(response)
+      if (rejectionMessage) {
+        throw new Error(rejectionMessage)
+      }
+
+      setToast({
+        type: 'success',
+        message: toSuccessMessage(action, response, displaySectionNumber, courseCode),
+      })
+      await Promise.all([
+        loadRegistrationData(true),
+        Promise.resolve(onEnrollmentChange?.()).catch(() => null),
+      ])
     } catch (error) {
       setToast({ type: 'error', message: toFailureMessage(action, error) })
     } finally {
@@ -818,7 +913,14 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleEnrollmentAction(sectionAction, section.sectionId, displaySectionNumber)}
+                          onClick={() =>
+                            handleEnrollmentAction(
+                              sectionAction,
+                              section.sectionId,
+                              displaySectionNumber,
+                              selectedDetail.code,
+                            )
+                          }
                           disabled={isMutatingSection}
                           className={actionButtonClasses}
                         >
@@ -916,7 +1018,14 @@ function ClassCatalog({ onEnrollmentChange, currentCourses = [] }) {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleEnrollmentAction(sectionAction, section.sectionId, displaySectionNumber)}
+                              onClick={() =>
+                                handleEnrollmentAction(
+                                  sectionAction,
+                                  section.sectionId,
+                                  displaySectionNumber,
+                                  course.code,
+                                )
+                              }
                               disabled={isMutatingSection}
                               className={actionButtonClasses}
                             >

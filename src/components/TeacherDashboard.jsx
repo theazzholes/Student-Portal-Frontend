@@ -75,8 +75,8 @@ function TeacherDashboard() {
       setRefreshing(true)
     } else {
       setLoading(true)
+      setErrorMessage('')
     }
-    setErrorMessage('')
 
     try {
       const data = await getTeacherDashboard()
@@ -90,7 +90,9 @@ function TeacherDashboard() {
         return data.assignedClasses[0]?.sectionId ?? null
       })
     } catch (error) {
-      setErrorMessage(error.message)
+      if (!background) {
+        setErrorMessage(error.message)
+      }
     } finally {
       if (background) {
         setRefreshing(false)
@@ -110,15 +112,17 @@ function TeacherDashboard() {
       setRosterRefreshing(true)
     } else {
       setRosterLoading(true)
+      setRosterError('')
     }
-    setRosterError('')
 
     try {
       const data = await getTeacherClassStudents(sectionId)
       setRoster(data)
     } catch (error) {
-      setRosterError(error.message)
-      setRoster(null)
+      if (!background) {
+        setRosterError(error.message)
+        setRoster(null)
+      }
     } finally {
       if (background) {
         setRosterRefreshing(false)
@@ -173,8 +177,15 @@ function TeacherDashboard() {
   )
 
   const refreshTeacherData = useCallback(async () => {
-    await Promise.all([loadTeacherDashboard(), loadRoster(selectedSectionId)])
-  }, [loadRoster, loadTeacherDashboard, selectedSectionId])
+    const normalizedSectionId = selectedSectionId ? String(selectedSectionId) : ''
+
+    await Promise.all([
+      loadTeacherDashboard({ background: true }),
+      normalizedSectionId && ownedSectionIds.has(normalizedSectionId)
+        ? loadRoster(selectedSectionId, { background: true })
+        : Promise.resolve(),
+    ])
+  }, [loadRoster, loadTeacherDashboard, ownedSectionIds, selectedSectionId])
 
   const handleTeacherEnroll = async () => {
     const trimmedStudentId = studentIdInput.trim()
