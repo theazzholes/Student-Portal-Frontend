@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TopNavbar from './TopNav'
 import CourseCard from './CourseCard'
 import CourseDetailView from './CourseDetailView'
@@ -9,6 +9,47 @@ import TeacherDashboard from './TeacherDashboard'
 import ScheduleAssistant from './ScheduleAssistant'
 
 const OVERVIEW_TOAST_AUTO_DISMISS_MS = 3500
+
+const TAB_TRANSITION_STYLES = `
+  @keyframes tabFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes tabFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+  .tab-enter {
+    animation: tabFadeIn 0.2s ease-out both;
+  }
+  .tab-exit {
+    animation: tabFadeOut 0.13s ease-in both;
+    pointer-events: none;
+  }
+`
+
+function useTabTransition(activeTab) {
+  const [displayedTab, setDisplayedTab] = useState(activeTab)
+  const [animClass, setAnimClass] = useState('')
+  const pendingRef = useRef(null)
+
+  useEffect(() => {
+    if (activeTab === displayedTab) return
+
+    // Exit current tab
+    setAnimClass('tab-exit')
+    pendingRef.current = activeTab
+
+    const exitTimer = setTimeout(() => {
+      setDisplayedTab(pendingRef.current)
+      setAnimClass('tab-enter')
+    }, 150)
+
+    return () => clearTimeout(exitTimer)
+  }, [activeTab]) 
+
+  return { displayedTab, animClass }
+}
 
 function EnrollmentBadge({ status }) {
   const isWaitlisted = String(status ?? '').toLowerCase().includes('waitlist')
@@ -49,6 +90,8 @@ function Dashboard() {
   const [primedCourseActionId, setPrimedCourseActionId] = useState(null)
   const [overviewToast, setOverviewToast] = useState(null)
 
+  const { displayedTab, animClass } = useTabTransition(activeTab)
+
   const applyDashboardData = useCallback((data) => {
     setStudent(data)
     setSelectedCourseId((current) => {
@@ -80,7 +123,6 @@ function Dashboard() {
       const data = await getStudentDashboard()
       applyDashboardData(data)
     } catch {
-      // Keep the current view stable if background refresh fails.
     }
   }, [applyDashboardData])
 
@@ -241,6 +283,7 @@ function Dashboard() {
       />
 
       <main className="mx-auto w-full max-w-[1600px] px-6 pb-10 pt-24">
+        <style>{TAB_TRANSITION_STYLES}</style>
         {viewMode === 'teacher' ? (
           <TeacherDashboard />
         ) : loading ? (
@@ -254,8 +297,8 @@ function Dashboard() {
             <p className="mt-2 text-rose-700">{errorMessage}</p>
           </section>
         ) : (
-          <>
-            {activeTab === 'overview' && (
+          <div key={displayedTab} className={animClass}>
+            {displayedTab === 'overview' && (
               <section className="space-y-4">
                 <header className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-4">
@@ -358,13 +401,13 @@ function Dashboard() {
               </section>
             )}
 
-            {activeTab === 'courses' && (
+            {displayedTab === 'courses' && (
               <section className="h-[calc(100dvh-8.5rem)] min-h-0">
                 <ClassCatalog onEnrollmentChange={refreshDashboardSilently} currentCourses={courses} />
               </section>
             )}
 
-            {activeTab === 'grades' && (
+            {displayedTab === 'grades' && (
               <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 className="text-xl font-semibold">Grade Snapshot</h3>
                 <p className="mt-2 text-slate-600">
@@ -384,7 +427,7 @@ function Dashboard() {
               </section>
             )}
 
-            {activeTab === 'schedule' && (
+            {displayedTab === 'schedule' && (
               <section className="space-y-4">
                 <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
                   <h3 className="text-xl font-semibold text-slate-900">Schedule Planning</h3>
@@ -397,7 +440,7 @@ function Dashboard() {
                 <ScheduleAssistant currentCourses={courses} />
               </section>
             )}
-          </>
+          </div>
         )}
       </main>
     </div>
