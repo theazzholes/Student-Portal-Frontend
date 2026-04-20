@@ -51,15 +51,6 @@ function useTabTransition(activeTab) {
   return { displayedTab, animClass }
 }
 
-function EnrollmentBadge({ status }) {
-  const isWaitlisted = String(status ?? '').toLowerCase().includes('waitlist')
-  const classes = isWaitlisted
-    ? 'inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800'
-    : 'inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800'
-
-  return <span className={classes}>{status}</span>
-}
-
 function canUnenrollFromStatus(status) {
   const normalized = String(status ?? '').trim().toLowerCase()
   if (!normalized) {
@@ -404,26 +395,6 @@ function Dashboard() {
             {displayedTab === 'courses' && (
               <section className="h-[calc(100dvh-8.5rem)] min-h-0">
                 <ClassCatalog onEnrollmentChange={refreshDashboardSilently} currentCourses={courses} />
-              </section>
-            )}
-
-            {displayedTab === 'grades' && (
-              <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-xl font-semibold">Grade Snapshot</h3>
-                <p className="mt-2 text-slate-600">
-                  The documented API does not expose grade data. This view now reflects current enrollment state instead of mock grades.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-slate-700">
-                  {courses.map((course) => (
-                    <li key={course.id} className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold">{course.courseCode}</span>
-                      <span>|</span>
-                      <span>{course.className}</span>
-                      <span>|</span>
-                      <EnrollmentBadge status={course.enrollmentStatus} />
-                    </li>
-                  ))}
-                </ul>
               </section>
             )}
 

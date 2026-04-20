@@ -3,7 +3,6 @@ import logo from '../assets/Capgemini Logo final.png'
 const navItems = [
   { id: 'overview', label: 'Overview' },
   { id: 'courses', label: 'Courses' },
-  { id: 'grades', label: 'Grades' },
   { id: 'schedule', label: 'Schedule' },
 ]
 
