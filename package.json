@@ -1,16 +1,19 @@
 {
   "name": "student-portal",
-  "homepage": "https://theazzholes.github.io/Student-Portal-Frontend/",
+  "homepage": "https://student.dindl.co/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:github": "vite build --mode github-pages",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "predeploy:github": "npm run build:github",
+    "deploy:github": "gh-pages -d dist"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
