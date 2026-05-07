@@ -36,17 +36,22 @@ function useTabTransition(activeTab) {
   useEffect(() => {
     if (activeTab === displayedTab) return
 
-    // Exit current tab
-    setAnimClass('tab-exit')
-    pendingRef.current = activeTab
+    const nextTab = activeTab
+    const exitTimer = window.setTimeout(() => {
+      setAnimClass('tab-exit')
+      pendingRef.current = window.setTimeout(() => {
+        setDisplayedTab(nextTab)
+        setAnimClass('tab-enter')
+      }, 150)
+    }, 0)
 
-    const exitTimer = setTimeout(() => {
-      setDisplayedTab(pendingRef.current)
-      setAnimClass('tab-enter')
-    }, 150)
-
-    return () => clearTimeout(exitTimer)
-  }, [activeTab]) 
+    return () => {
+      window.clearTimeout(exitTimer)
+      if (pendingRef.current) {
+        window.clearTimeout(pendingRef.current)
+      }
+    }
+  }, [activeTab, displayedTab])
 
   return { displayedTab, animClass }
 }
@@ -114,6 +119,7 @@ function Dashboard() {
       const data = await getStudentDashboard()
       applyDashboardData(data)
     } catch {
+      // Background refreshes should not interrupt the current screen.
     }
   }, [applyDashboardData])
 
@@ -154,8 +160,8 @@ function Dashboard() {
   const navDisplayUser =
     viewMode === 'teacher'
       ? {
-          fullName: currentUser?.name ?? student?.fullName,
-          email: currentUser?.email ?? student?.email,
+          fullName: currentUser?.instructorName ?? currentUser?.name ?? student?.fullName,
+          email: currentUser?.instructorEmail ?? currentUser?.email ?? student?.email,
         }
       : student
 
@@ -280,11 +286,11 @@ function Dashboard() {
         ) : loading ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-900">Loading dashboard...</h2>
-            <p className="mt-2 text-slate-600">Fetching your profile, classes, and schedule from the production API.</p>
+            <p className="mt-2 text-slate-600">Loading your profile, classes, and schedule from dummy-data.json.</p>
           </section>
         ) : errorMessage ? (
           <section className="rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-rose-900">API request failed</h2>
+            <h2 className="text-2xl font-bold text-rose-900">Dummy data load failed</h2>
             <p className="mt-2 text-rose-700">{errorMessage}</p>
           </section>
         ) : (
@@ -296,7 +302,7 @@ function Dashboard() {
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-600">Student Profile</p>
                       <h2 className="text-2xl font-bold leading-tight">{student?.fullName}</h2>
-                      <p className="text-sm text-slate-600">{student?.email || 'No email returned by API'}</p>
+                      <p className="text-sm text-slate-600">{student?.email || 'No email in dummy data'}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center">

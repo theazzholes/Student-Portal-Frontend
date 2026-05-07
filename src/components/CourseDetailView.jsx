@@ -4,7 +4,7 @@ function CourseDetailView({ course }) {
       <section className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-6">
         <h4 className="text-lg font-semibold text-slate-900">Course Details</h4>
         <p className="mt-2 text-slate-600">
-          Select a current class to view the instructor, schedule, location, and enrollment status returned by the API.
+          Select a current class to view the instructor, schedule, location, and enrollment status from dummy-data.json.
         </p>
       </section>
     )

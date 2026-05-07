@@ -1122,10 +1122,10 @@ function MiiAvatarFull({ isTyping = false, onWave }) {
         }}>
           <span
             className="mii-status-dot"
-            style={{ width: 7, height: 7, background: isTyping ? '#f59e0b' : '#4caf50', borderRadius: '50%', display: 'inline-block' }}
+            style={{ width: 7, height: 7, background: isTyping ? '#ffa200' : '#ff0000', borderRadius: '50%', display: 'inline-block' }}
           />
-          <span style={{ fontSize: 10, color: '#546e7a', fontWeight: 500 }}>
-            {isTyping ? 'Thinking…' : 'Ready'}
+          <span style={{ fontSize: 10, color: '#ff0000', fontWeight: 500 }}>
+            {isTyping ? 'Disabled' : 'Disabled'}
           </span>
         </div>
       </div>
@@ -1954,13 +1954,15 @@ function ScheduleAssistant({ currentCourses = [] }) {
                 id="schedule-chat-message"
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
-                placeholder="Example: I need 12 credits, no classes before 10 AM, and prefer to keep Fridays open."
+                // placeholder="Example: I need 12 credits, no classes before 10 AM, and prefer to keep Fridays open."
+                placeholder="AI assisted scheduling is currently disabled as the Azure resources are no longer being hosted."
                 rows={3}
+                disabled={true}
                 className="min-h-28 flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
               <button
                 type="submit"
-                disabled={isSubmitting || isResetting || draft.trim() === ''}
+                disabled={true}
                 className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400 sm:self-end"
               >
                 {isSubmitting ? 'Sending...' : activeRequestId ? 'Send Follow-Up' : 'Save Preferences'}

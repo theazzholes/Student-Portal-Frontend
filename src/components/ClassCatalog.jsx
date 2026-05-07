@@ -156,7 +156,7 @@ function toApiRejectionMessage(response) {
     return String(response.errorCode)
   }
 
-  return 'The request was rejected by the API.'
+  return 'The request was rejected by the local data service.'
 }
 
 function toSectionPreviewCourse(source, section, label = 'Preview') {
