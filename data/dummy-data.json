@@ -1,0 +1,1321 @@
+{
+  "users": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "email": "john.student@university.edu",
+      "passwordHash": "$2a$11$hashedpassword1",
+      "name": "John Smith",
+      "studentId": "660e8400-e29b-41d4-a716-446655440001",
+      "createdAt": "2026-01-15T10:30:00Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "email": "sarah.student@university.edu",
+      "passwordHash": "$2a$11$hashedpassword2",
+      "name": "Sarah Johnson",
+      "studentId": "660e8400-e29b-41d4-a716-446655440002",
+      "createdAt": "2026-01-16T11:45:00Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "email": "mike.student@university.edu",
+      "passwordHash": "$2a$11$hashedpassword3",
+      "name": "Mike Davis",
+      "studentId": "660e8400-e29b-41d4-a716-446655440003",
+      "createdAt": "2026-01-17T09:20:00Z"
+    }
+  ],
+  "students": [
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440001",
+      "name": "John Smith",
+      "email": "john.student@university.edu",
+      "password": "$2a$11$hashedpassword1",
+      "major": "Computer Science",
+      "classification": "Junior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440002",
+      "name": "Sarah Johnson",
+      "email": "sarah.student@university.edu",
+      "password": "$2a$11$hashedpassword2",
+      "major": "Mathematics",
+      "classification": "Senior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440003",
+      "name": "Mike Davis",
+      "email": "mike.student@university.edu",
+      "password": "$2a$11$hashedpassword3",
+      "major": "Physics",
+      "classification": "Sophomore"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440004",
+      "name": "Emma Wilson",
+      "email": "emma.wilson@university.edu",
+      "password": "$2a$11$hashedpassword4",
+      "major": "Computer Science",
+      "classification": "Freshman"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440005",
+      "name": "Alex Martinez",
+      "email": "alex.martinez@university.edu",
+      "password": "$2a$11$hashedpassword5",
+      "major": "Engineering",
+      "classification": "Junior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440006",
+      "name": "Jessica Taylor",
+      "email": "jessica.taylor@university.edu",
+      "password": "$2a$11$hashedpassword6",
+      "major": "Computer Science",
+      "classification": "Senior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440007",
+      "name": "David Brown",
+      "email": "david.brown@university.edu",
+      "password": "$2a$11$hashedpassword7",
+      "major": "Chemistry",
+      "classification": "Sophomore"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440008",
+      "name": "Lisa Anderson",
+      "email": "lisa.anderson@university.edu",
+      "password": "$2a$11$hashedpassword8",
+      "major": "Biology",
+      "classification": "Junior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440009",
+      "name": "Christopher Lee",
+      "email": "chris.lee@university.edu",
+      "password": "$2a$11$hashedpassword9",
+      "major": "Physics",
+      "classification": "Senior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440010",
+      "name": "Amanda White",
+      "email": "amanda.white@university.edu",
+      "password": "$2a$11$hashedpassword10",
+      "major": "Mathematics",
+      "classification": "Freshman"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440011",
+      "name": "Kevin Harris",
+      "email": "kevin.harris@university.edu",
+      "password": "$2a$11$hashedpassword11",
+      "major": "Engineering",
+      "classification": "Senior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440012",
+      "name": "Rachel Green",
+      "email": "rachel.green@university.edu",
+      "password": "$2a$11$hashedpassword12",
+      "major": "Computer Science",
+      "classification": "Junior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440013",
+      "name": "Brandon Clark",
+      "email": "brandon.clark@university.edu",
+      "password": "$2a$11$hashedpassword13",
+      "major": "Biology",
+      "classification": "Sophomore"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440014",
+      "name": "Megan Lewis",
+      "email": "megan.lewis@university.edu",
+      "password": "$2a$11$hashedpassword14",
+      "major": "Chemistry",
+      "classification": "Senior"
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440015",
+      "name": "Tyler Walker",
+      "email": "tyler.walker@university.edu",
+      "password": "$2a$11$hashedpassword15",
+      "major": "Engineering",
+      "classification": "Freshman"
+    }
+  ],
+  "instructors": [
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440001",
+      "name": "Dr. Robert Anderson",
+      "email": "r.anderson@university.edu",
+      "password": "$2a$11$instructorpass1"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440002",
+      "name": "Dr. Lisa Chen",
+      "email": "l.chen@university.edu",
+      "password": "$2a$11$instructorpass2"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440003",
+      "name": "Prof. James Thompson",
+      "email": "j.thompson@university.edu",
+      "password": "$2a$11$instructorpass3"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440004",
+      "name": "Dr. Michael Rodriguez",
+      "email": "m.rodriguez@university.edu",
+      "password": "$2a$11$instructorpass4"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440005",
+      "name": "Prof. Jennifer Martinez",
+      "email": "j.martinez@university.edu",
+      "password": "$2a$11$instructorpass5"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440006",
+      "name": "Dr. David Williams",
+      "email": "d.williams@university.edu",
+      "password": "$2a$11$instructorpass6"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440007",
+      "name": "Prof. Sarah Johnson",
+      "email": "s.johnson@university.edu",
+      "password": "$2a$11$instructorpass7"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440008",
+      "name": "Dr. Patricia Lee",
+      "email": "p.lee@university.edu",
+      "password": "$2a$11$instructorpass8"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440009",
+      "name": "Prof. Christopher Brown",
+      "email": "c.brown@university.edu",
+      "password": "$2a$11$instructorpass9"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440010",
+      "name": "Dr. Margaret White",
+      "email": "m.white@university.edu",
+      "password": "$2a$11$instructorpass10"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440011",
+      "name": "Prof. Steven Taylor",
+      "email": "s.taylor@university.edu",
+      "password": "$2a$11$instructorpass11"
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440012",
+      "name": "Dr. Emily Davis",
+      "email": "e.davis@university.edu",
+      "password": "$2a$11$instructorpass12"
+    }
+  ],
+  "classes": [
+    {
+      "id": "CS-101-S26",
+      "departmentId": "CS",
+      "departmentName": "Computer Science",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 101,
+      "title": "Introduction to Programming",
+      "description": "Learn the fundamentals of programming with Python. Covers variables, control flow, functions, and basic data structures.",
+      "credits": 3
+    },
+    {
+      "id": "CS-102-S26",
+      "departmentId": "CS",
+      "departmentName": "Computer Science",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 102,
+      "title": "Web Development Basics",
+      "description": "Introduction to HTML, CSS, and JavaScript. Build interactive web pages and understand client-side development.",
+      "credits": 3
+    },
+    {
+      "id": "CS-201-S26",
+      "departmentId": "CS",
+      "departmentName": "Computer Science",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 201,
+      "title": "Data Structures",
+      "description": "Study fundamental data structures including arrays, linked lists, stacks, queues, trees, and graphs. Emphasis on algorithm analysis.",
+      "credits": 4
+    },
+    {
+      "id": "CS-301-S26",
+      "departmentId": "CS",
+      "departmentName": "Computer Science",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 301,
+      "title": "Algorithms and Complexity",
+      "description": "Advanced algorithms, complexity analysis, sorting, searching, and optimization techniques.",
+      "credits": 4
+    },
+    {
+      "id": "CS-401-S26",
+      "departmentId": "CS",
+      "departmentName": "Computer Science",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 401,
+      "title": "Software Engineering",
+      "description": "Design patterns, SOLID principles, testing strategies, and project management methodologies.",
+      "credits": 4
+    },
+    {
+      "id": "MATH-101-S26",
+      "departmentId": "MATH",
+      "departmentName": "Mathematics",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 101,
+      "title": "Calculus I",
+      "description": "Introduction to single-variable calculus including limits, derivatives, and integrals.",
+      "credits": 4
+    },
+    {
+      "id": "MATH-102-S26",
+      "departmentId": "MATH",
+      "departmentName": "Mathematics",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 102,
+      "title": "Calculus II",
+      "description": "Continuation of Calculus I. Integration techniques, sequences, series, and parametric equations.",
+      "credits": 4
+    },
+    {
+      "id": "MATH-201-S26",
+      "departmentId": "MATH",
+      "departmentName": "Mathematics",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 201,
+      "title": "Linear Algebra",
+      "description": "Matrices, vector spaces, eigenvalues, and applications to solving systems of equations.",
+      "credits": 4
+    },
+    {
+      "id": "PHYS-101-S26",
+      "departmentId": "PHYS",
+      "departmentName": "Physics",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 101,
+      "title": "Physics I: Mechanics",
+      "description": "Classical mechanics including kinematics, dynamics, energy, and momentum.",
+      "credits": 4
+    },
+    {
+      "id": "PHYS-102-S26",
+      "departmentId": "PHYS",
+      "departmentName": "Physics",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 102,
+      "title": "Physics II: Electricity and Magnetism",
+      "description": "Electric fields, circuits, magnetic fields, and electromagnetic waves.",
+      "credits": 4
+    },
+    {
+      "id": "CHEM-101-S26",
+      "departmentId": "CHEM",
+      "departmentName": "Chemistry",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 101,
+      "title": "General Chemistry",
+      "description": "Atomic structure, bonding, stoichiometry, and thermochemistry for non-majors.",
+      "credits": 3
+    },
+    {
+      "id": "CHEM-151-S26",
+      "departmentId": "CHEM",
+      "departmentName": "Chemistry",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 151,
+      "title": "Chemistry I for Science Majors",
+      "description": "Comprehensive general chemistry for chemistry, biology, and engineering majors with lab component.",
+      "credits": 4
+    },
+    {
+      "id": "BIO-101-S26",
+      "departmentId": "BIO",
+      "departmentName": "Biology",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 101,
+      "title": "General Biology",
+      "description": "Introduction to cellular biology, genetics, evolution, and ecology.",
+      "credits": 4
+    },
+    {
+      "id": "BIO-201-S26",
+      "departmentId": "BIO",
+      "departmentName": "Biology",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 201,
+      "title": "Molecular Biology",
+      "description": "DNA structure and replication, gene expression, protein synthesis, and genetic regulation.",
+      "credits": 4
+    },
+    {
+      "id": "ENG-101-S26",
+      "departmentId": "ENG",
+      "departmentName": "Mechanical Engineering",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 101,
+      "title": "Engineering Mechanics I",
+      "description": "Statics, force analysis, equilibrium, and structural systems.",
+      "credits": 4
+    },
+    {
+      "id": "ENG-102-S26",
+      "departmentId": "ENG",
+      "departmentName": "Mechanical Engineering",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 102,
+      "title": "Engineering Mechanics II",
+      "description": "Dynamics, kinematics, energy methods, and oscillations.",
+      "credits": 4
+    },
+    {
+      "id": "ENG-201-S26",
+      "departmentId": "ENG",
+      "departmentName": "Mechanical Engineering",
+      "semester": "Spring",
+      "session": "2026",
+      "courseNumber": 201,
+      "title": "Thermodynamics",
+      "description": "Properties of pure substances, first and second laws, cycles, and power systems.",
+      "credits": 4
+    }
+  ],
+  "classSections": [
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440001",
+      "classId": "CS-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440001",
+      "capacity": 35
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440002",
+      "classId": "CS-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440002",
+      "capacity": 35
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440003",
+      "classId": "CS-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440003",
+      "capacity": 35
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440004",
+      "classId": "CS-102-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440001",
+      "capacity": 30
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440005",
+      "classId": "CS-102-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440004",
+      "capacity": 30
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440006",
+      "classId": "CS-201-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440002",
+      "capacity": 25
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440007",
+      "classId": "CS-201-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440005",
+      "capacity": 25
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440008",
+      "classId": "CS-301-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440003",
+      "capacity": 20
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440009",
+      "classId": "CS-401-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440006",
+      "capacity": 18
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440010",
+      "classId": "MATH-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440007",
+      "capacity": 40
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440011",
+      "classId": "MATH-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440008",
+      "capacity": 40
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440012",
+      "classId": "MATH-102-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440007",
+      "capacity": 38
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440013",
+      "classId": "MATH-201-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440008",
+      "capacity": 30
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440014",
+      "classId": "PHYS-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440009",
+      "capacity": 35
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440015",
+      "classId": "PHYS-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440010",
+      "capacity": 35
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440016",
+      "classId": "PHYS-102-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440009",
+      "capacity": 32
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440017",
+      "classId": "CHEM-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440011",
+      "capacity": 45
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440018",
+      "classId": "CHEM-151-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440011",
+      "capacity": 28
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440019",
+      "classId": "CHEM-151-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440012",
+      "capacity": 28
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440020",
+      "classId": "BIO-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440010",
+      "capacity": 40
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440021",
+      "classId": "BIO-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440012",
+      "capacity": 40
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440022",
+      "classId": "BIO-201-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440010",
+      "capacity": 32
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440023",
+      "classId": "ENG-101-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440004",
+      "capacity": 32
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440024",
+      "classId": "ENG-102-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440005",
+      "capacity": 32
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440025",
+      "classId": "ENG-201-S26",
+      "instructorId": "770e8400-e29b-41d4-a716-446655440006",
+      "capacity": 30
+    }
+  ],
+  "classSchedules": [
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440001",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440001",
+      "day": "Monday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "STEM Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440002",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440001",
+      "day": "Wednesday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "STEM Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440003",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440001",
+      "day": "Friday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "STEM Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440004",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440002",
+      "day": "Tuesday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "STEM Building, Room 102"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440005",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440002",
+      "day": "Thursday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "STEM Building, Room 102"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440006",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440003",
+      "day": "Monday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "STEM Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440007",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440003",
+      "day": "Wednesday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "STEM Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440008",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440003",
+      "day": "Friday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "STEM Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440009",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440004",
+      "day": "Tuesday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "STEM Building, Room 104"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440010",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440004",
+      "day": "Thursday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "STEM Building, Room 104"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440011",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440005",
+      "day": "Monday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "STEM Building, Room 105"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440012",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440005",
+      "day": "Wednesday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "STEM Building, Room 105"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440013",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440005",
+      "day": "Friday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "STEM Building, Room 105"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440014",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440006",
+      "day": "Tuesday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "STEM Building, Room 201"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440015",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440006",
+      "day": "Thursday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "STEM Building, Room 201"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440016",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440007",
+      "day": "Monday",
+      "startTime": "13:00:00",
+      "endTime": "14:30:00",
+      "location": "STEM Building, Room 202"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440017",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440007",
+      "day": "Wednesday",
+      "startTime": "13:00:00",
+      "endTime": "14:30:00",
+      "location": "STEM Building, Room 202"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440018",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440008",
+      "day": "Tuesday",
+      "startTime": "16:00:00",
+      "endTime": "17:30:00",
+      "location": "STEM Building, Room 301"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440019",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440008",
+      "day": "Thursday",
+      "startTime": "16:00:00",
+      "endTime": "17:30:00",
+      "location": "STEM Building, Room 301"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440020",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440009",
+      "day": "Monday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "STEM Building, Room 302"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440021",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440009",
+      "day": "Wednesday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "STEM Building, Room 302"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440022",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "day": "Monday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "Math Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440023",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "day": "Wednesday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "Math Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440024",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "day": "Friday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "Math Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440025",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440011",
+      "day": "Tuesday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "Math Building, Room 102"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440026",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440011",
+      "day": "Thursday",
+      "startTime": "09:00:00",
+      "endTime": "10:30:00",
+      "location": "Math Building, Room 102"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440027",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440012",
+      "day": "Monday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "Math Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440028",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440012",
+      "day": "Wednesday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "Math Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440029",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440012",
+      "day": "Friday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "Math Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440030",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440013",
+      "day": "Tuesday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "Math Building, Room 104"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440031",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440013",
+      "day": "Thursday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "Math Building, Room 104"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440032",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440014",
+      "day": "Monday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "Science Building, Room 201"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440033",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440014",
+      "day": "Wednesday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "Science Building, Room 201"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440034",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440014",
+      "day": "Friday",
+      "startTime": "11:00:00",
+      "endTime": "12:30:00",
+      "location": "Science Building, Room 201"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440035",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440015",
+      "day": "Tuesday",
+      "startTime": "13:00:00",
+      "endTime": "14:30:00",
+      "location": "Science Building, Room 202"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440036",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440015",
+      "day": "Thursday",
+      "startTime": "13:00:00",
+      "endTime": "14:30:00",
+      "location": "Science Building, Room 202"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440037",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440016",
+      "day": "Monday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "Science Building, Room 203"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440038",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440016",
+      "day": "Wednesday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "Science Building, Room 203"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440039",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440017",
+      "day": "Tuesday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "Science Building, Room 301"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440040",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440017",
+      "day": "Thursday",
+      "startTime": "10:00:00",
+      "endTime": "11:30:00",
+      "location": "Science Building, Room 301"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440041",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440018",
+      "day": "Monday",
+      "startTime": "12:00:00",
+      "endTime": "13:30:00",
+      "location": "Science Building, Room 302"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440042",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440018",
+      "day": "Wednesday",
+      "startTime": "12:00:00",
+      "endTime": "13:30:00",
+      "location": "Science Building, Room 302"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440043",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440019",
+      "day": "Tuesday",
+      "startTime": "12:00:00",
+      "endTime": "13:30:00",
+      "location": "Science Building, Room 303"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440044",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440019",
+      "day": "Thursday",
+      "startTime": "12:00:00",
+      "endTime": "13:30:00",
+      "location": "Science Building, Room 303"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440045",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440020",
+      "day": "Monday",
+      "startTime": "15:00:00",
+      "endTime": "16:30:00",
+      "location": "Science Building, Room 304"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440046",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440020",
+      "day": "Wednesday",
+      "startTime": "15:00:00",
+      "endTime": "16:30:00",
+      "location": "Science Building, Room 304"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440047",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440020",
+      "day": "Friday",
+      "startTime": "15:00:00",
+      "endTime": "16:30:00",
+      "location": "Science Building, Room 304"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440048",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440021",
+      "day": "Tuesday",
+      "startTime": "15:00:00",
+      "endTime": "16:30:00",
+      "location": "Science Building, Room 305"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440049",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440021",
+      "day": "Thursday",
+      "startTime": "15:00:00",
+      "endTime": "16:30:00",
+      "location": "Science Building, Room 305"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440050",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440022",
+      "day": "Monday",
+      "startTime": "13:00:00",
+      "endTime": "14:30:00",
+      "location": "Science Building, Room 306"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440051",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440022",
+      "day": "Wednesday",
+      "startTime": "13:00:00",
+      "endTime": "14:30:00",
+      "location": "Science Building, Room 306"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440052",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440023",
+      "day": "Monday",
+      "startTime": "08:00:00",
+      "endTime": "09:30:00",
+      "location": "Engineering Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440053",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440023",
+      "day": "Wednesday",
+      "startTime": "08:00:00",
+      "endTime": "09:30:00",
+      "location": "Engineering Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440054",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440023",
+      "day": "Friday",
+      "startTime": "08:00:00",
+      "endTime": "09:30:00",
+      "location": "Engineering Building, Room 101"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440055",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440024",
+      "day": "Tuesday",
+      "startTime": "08:00:00",
+      "endTime": "09:30:00",
+      "location": "Engineering Building, Room 102"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440056",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440024",
+      "day": "Thursday",
+      "startTime": "08:00:00",
+      "endTime": "09:30:00",
+      "location": "Engineering Building, Room 102"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440057",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440025",
+      "day": "Tuesday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "Engineering Building, Room 103"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440058",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440025",
+      "day": "Thursday",
+      "startTime": "14:00:00",
+      "endTime": "15:30:00",
+      "location": "Engineering Building, Room 103"
+    }
+  ],
+  "enrollments": [
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440001",
+      "studentId": "660e8400-e29b-41d4-a716-446655440001",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440001",
+      "status": 0,
+      "createdAtUtc": "2026-01-10T08:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440002",
+      "studentId": "660e8400-e29b-41d4-a716-446655440002",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440001",
+      "status": 0,
+      "createdAtUtc": "2026-01-11T09:15:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440003",
+      "studentId": "660e8400-e29b-41d4-a716-446655440003",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440001",
+      "status": 0,
+      "createdAtUtc": "2026-01-12T10:45:00Z",
+      "position": 3
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440004",
+      "studentId": "660e8400-e29b-41d4-a716-446655440004",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440002",
+      "status": 0,
+      "createdAtUtc": "2026-01-13T11:20:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440005",
+      "studentId": "660e8400-e29b-41d4-a716-446655440005",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440002",
+      "status": 0,
+      "createdAtUtc": "2026-01-14T12:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440006",
+      "studentId": "660e8400-e29b-41d4-a716-446655440006",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440006",
+      "status": 0,
+      "createdAtUtc": "2026-01-15T13:30:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440007",
+      "studentId": "660e8400-e29b-41d4-a716-446655440001",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440006",
+      "status": 0,
+      "createdAtUtc": "2026-01-16T14:15:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440008",
+      "studentId": "660e8400-e29b-41d4-a716-446655440002",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440008",
+      "status": 0,
+      "createdAtUtc": "2026-01-17T15:45:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440009",
+      "studentId": "660e8400-e29b-41d4-a716-446655440005",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440008",
+      "status": 1,
+      "createdAtUtc": "2026-01-18T16:20:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440010",
+      "studentId": "660e8400-e29b-41d4-a716-446655440003",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "status": 0,
+      "createdAtUtc": "2026-01-19T09:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440011",
+      "studentId": "660e8400-e29b-41d4-a716-446655440004",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "status": 0,
+      "createdAtUtc": "2026-01-20T10:30:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440012",
+      "studentId": "660e8400-e29b-41d4-a716-446655440006",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "status": 0,
+      "createdAtUtc": "2026-01-21T11:15:00Z",
+      "position": 3
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440013",
+      "studentId": "660e8400-e29b-41d4-a716-446655440001",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440010",
+      "status": 1,
+      "createdAtUtc": "2026-01-22T12:45:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440014",
+      "studentId": "660e8400-e29b-41d4-a716-446655440007",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440012",
+      "status": 0,
+      "createdAtUtc": "2026-01-23T09:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440015",
+      "studentId": "660e8400-e29b-41d4-a716-446655440008",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440012",
+      "status": 0,
+      "createdAtUtc": "2026-01-24T10:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440016",
+      "studentId": "660e8400-e29b-41d4-a716-446655440009",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440013",
+      "status": 0,
+      "createdAtUtc": "2026-01-25T11:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440017",
+      "studentId": "660e8400-e29b-41d4-a716-446655440010",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440013",
+      "status": 0,
+      "createdAtUtc": "2026-01-26T12:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440018",
+      "studentId": "660e8400-e29b-41d4-a716-446655440011",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440014",
+      "status": 0,
+      "createdAtUtc": "2026-01-27T08:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440019",
+      "studentId": "660e8400-e29b-41d4-a716-446655440012",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440014",
+      "status": 0,
+      "createdAtUtc": "2026-01-28T09:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440020",
+      "studentId": "660e8400-e29b-41d4-a716-446655440013",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440014",
+      "status": 0,
+      "createdAtUtc": "2026-01-29T10:00:00Z",
+      "position": 3
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440021",
+      "studentId": "660e8400-e29b-41d4-a716-446655440014",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440015",
+      "status": 0,
+      "createdAtUtc": "2026-01-30T11:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440022",
+      "studentId": "660e8400-e29b-41d4-a716-446655440015",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440015",
+      "status": 0,
+      "createdAtUtc": "2026-01-31T12:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440023",
+      "studentId": "660e8400-e29b-41d4-a716-446655440007",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440018",
+      "status": 0,
+      "createdAtUtc": "2026-02-01T08:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440024",
+      "studentId": "660e8400-e29b-41d4-a716-446655440008",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440018",
+      "status": 0,
+      "createdAtUtc": "2026-02-02T09:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440025",
+      "studentId": "660e8400-e29b-41d4-a716-446655440009",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440019",
+      "status": 0,
+      "createdAtUtc": "2026-02-03T10:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440026",
+      "studentId": "660e8400-e29b-41d4-a716-446655440004",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440020",
+      "status": 0,
+      "createdAtUtc": "2026-02-04T11:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440027",
+      "studentId": "660e8400-e29b-41d4-a716-446655440005",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440020",
+      "status": 0,
+      "createdAtUtc": "2026-02-05T12:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440028",
+      "studentId": "660e8400-e29b-41d4-a716-446655440006",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440020",
+      "status": 1,
+      "createdAtUtc": "2026-02-06T13:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440029",
+      "studentId": "660e8400-e29b-41d4-a716-446655440001",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440021",
+      "status": 0,
+      "createdAtUtc": "2026-02-07T08:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440030",
+      "studentId": "660e8400-e29b-41d4-a716-446655440002",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440021",
+      "status": 0,
+      "createdAtUtc": "2026-02-08T09:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440031",
+      "studentId": "660e8400-e29b-41d4-a716-446655440003",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440022",
+      "status": 0,
+      "createdAtUtc": "2026-02-09T10:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440032",
+      "studentId": "660e8400-e29b-41d4-a716-446655440004",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440023",
+      "status": 0,
+      "createdAtUtc": "2026-02-10T11:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440033",
+      "studentId": "660e8400-e29b-41d4-a716-446655440005",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440023",
+      "status": 0,
+      "createdAtUtc": "2026-02-11T12:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440034",
+      "studentId": "660e8400-e29b-41d4-a716-446655440006",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440024",
+      "status": 0,
+      "createdAtUtc": "2026-02-12T13:00:00Z",
+      "position": 1
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440035",
+      "studentId": "660e8400-e29b-41d4-a716-446655440007",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440024",
+      "status": 0,
+      "createdAtUtc": "2026-02-13T14:00:00Z",
+      "position": 2
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440036",
+      "studentId": "660e8400-e29b-41d4-a716-446655440008",
+      "classSectionId": "880e8400-e29b-41d4-a716-446655440025",
+      "status": 0,
+      "createdAtUtc": "2026-02-14T15:00:00Z",
+      "position": 1
+    }
+  ]
+}
